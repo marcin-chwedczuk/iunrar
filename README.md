@@ -1,5 +1,7 @@
 # iunrar
 
+WORK IN PROGRESS - DO NOT USE
+
 iunrar (read "I unrar") is a simple application that unpacks RAR files.
 It supports RAR version 4 and older.
 
