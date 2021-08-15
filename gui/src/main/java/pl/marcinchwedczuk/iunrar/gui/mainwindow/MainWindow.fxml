@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane fx:id="mainWindow" minHeight="100" minWidth="300" prefHeight="853.0" prefWidth="1018.0" styleClass="mainWindow" stylesheets="@MainWindow.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.mainwindow.MainWindow">
+    <children>
+    </children>
+    <top>
+        <MenuBar fx:id="mainMenu" BorderPane.alignment="CENTER">
+            <menus>
+                <Menu fx:id="fileMenu" text="_File">
+                    <items>
+                        <MenuItem fx:id="openMenuItem" onAction="#guiOpenArchive" text="_Open RAR archive...">
+                         <accelerator>
+                            <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                         </accelerator>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="closeMenuItem" onAction="#guiClose" text="E_xit" />
+                    </items>
+                </Menu>
+                <Menu text="_Help">
+                    <items>
+                        <MenuItem onAction="#guiShowAbout" text="_About..." />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" minHeight="24.0" prefWidth="667.0" BorderPane.alignment="CENTER" />
+    </bottom>
+</BorderPane>

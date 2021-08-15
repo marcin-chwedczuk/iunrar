@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>parent-project</artifactId>
+        <groupId>pl.marcinchwedczuk.iunrar</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>gui</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>JavaFX Application</description>
+
+    <properties>
+        <!-- Values needed to create installers -->
+        <main-class>pl.marcinchwedczuk.iunrar.gui/pl.marcinchwedczuk.iunrar.gui.App</main-class>
+        <app.name>iunrar</app.name>
+        <app.version>1.0.0</app.version>
+        <windows.upgrade.uuid>54c286aa-c3a4-4fdc-8cfe-76a5739b1cc6</windows.upgrade.uuid>
+        <windows.vendor>marcinchwedczuk.pl</windows.vendor>
+
+        <!-- open modules when running tests -->
+        <extra-jvm-options-when-running-tests>
+            --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+            --add-opens javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+
+            <!-- Needed to make module code accessible outside module e.g. in unit tests. -->
+            --add-opens pl.marcinchwedczuk.iunrar.gui/pl.marcinchwedczuk.iunrar.gui=ALL-UNNAMED
+            --add-opens pl.marcinchwedczuk.iunrar.gui/pl.marcinchwedczuk.iunrar.gui.mainwindow=ALL-UNNAMED
+        </extra-jvm-options-when-running-tests>
+    </properties>
+
+    <dependencies>
+        <!-- modularized -->
+        <dependency>
+            <groupId>pl.marcinchwedczuk.iunrar</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>pl.marcinchwedczuk.iunrar</groupId>
+            <artifactId>commons-imaging</artifactId>
+        </dependency>
+
+        <!-- External -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>openjfx-monocle</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.fxml</include>
+                    <include>**/*.css</include>
+                    <include>**/*.png</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>nl.geodienstencentrum.maven</groupId>
+                <artifactId>sass-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>update-stylesheets</goal>
+                            <!-- SCSS Linter: Disabled because it takes too much time
+                            <goal>scss-lint</goal>
+                            -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <resources>
+                        <resource>
+                            <source>
+                                <directory>${project.build.sourceDirectory}</directory>
+                                <includes>
+                                    <include>**/*.scss</include>
+                                </includes>
+                            </source>
+                            <destination>${project.build.directory}/generated-resources/sass</destination>
+                        </resource>
+                    </resources>
+                    <sassOptions>
+                        <!-- See for list of all options:
+                        https://github.com/sass/ruby-sass/blob/7a50eae567260a23d3bbf4d5aaf1a76db43dec32/doc-src/SASS_REFERENCE.md#options
+                        -->
+                        <unix_newlines>true</unix_newlines>
+                        <cache>true</cache>
+                        <always_update>true</always_update>
+                        <style>:expanded</style>
+                        <debug_info>false</debug_info>
+                        <sourcemap>:none</sourcemap>
+                    </sassOptions>
+                </configuration>
+            </plugin>
+
+            <!-- Copy compiled SCSS files to output directory -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources-post-compile</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/generated-resources/sass</directory>
+                                    <includes>
+                                        <include>**/*.css</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>${main-class}</mainClass>
+                    <options>
+                        <!-- Enable assertions -->
+                        <option>-ea</option>
+
+                        <!-- uncomment to enable debugger's "Attach to Process..." -->
+                        <!--
+                        <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=4444</option>
+                        -->
+                    </options>
+                    <stripDebug>false</stripDebug>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <launcher>gui</launcher>
+                    <jlinkImageName>gui</jlinkImageName>
+                    <jlinkZipName>gui</jlinkZipName>
+                    <jlinkVerbose>true</jlinkVerbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev-build</id>
+        </profile>
+
+        <profile>
+            <id>mkinstaller</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <resources>
+                    <resource>
+                        <!-- Here we are processing the platform-specific jpackage command files, adding in Maven
+                         properties for configuration. -->
+                        <directory>${project.basedir}/src/packaging</directory>
+                        <filtering>true</filtering>
+                        <targetPath>${project.build.directory}/packaging</targetPath>
+                    </resource>
+                </resources>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.openjfx</groupId>
+                        <artifactId>javafx-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-runtime-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jlink</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.github.wiverson</groupId>
+                        <artifactId>jtoolprovider-plugin</artifactId>
+                        <executions>
+                           <!-- The command that actually generates the installer. The options for each platform
+                            are found the /src/packaging directory. These files are copied into the target directory by
+                            the Maven resources plugin, which does the filtering to replace the original values with
+                            the actual Maven properties.
+
+                            https://github.com/wiverson/jtoolprovider-plugin/blob/main/java-tool-doc.md
+                            -->
+                            <execution>
+                                <id>jpackage</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>java-tool</goal>
+                                </goals>
+                                <configuration>
+                                    <toolName>jpackage</toolName>
+                                    <removeDirectories>${project.build.directory}/installer-work</removeDirectories>
+                                    <args>@${project.build.directory}/packaging/${platform}-jpackage.txt</args>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Select the right platform to generate installers -->
+        <profile>
+            <id>unix-active</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>linux</platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows-active</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>win</platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac-active</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <platform>mac</platform>
+            </properties>
+        </profile>
+    </profiles>
+</project>
