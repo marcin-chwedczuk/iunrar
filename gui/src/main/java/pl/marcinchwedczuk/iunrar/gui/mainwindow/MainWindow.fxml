@@ -4,9 +4,11 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane fx:id="mainWindow" minHeight="100" minWidth="300" prefHeight="853.0" prefWidth="1018.0" styleClass="mainWindow" stylesheets="@MainWindow.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.mainwindow.MainWindow">
     <children>
@@ -36,4 +38,11 @@
     <bottom>
         <HBox alignment="CENTER_RIGHT" minHeight="24.0" prefWidth="667.0" BorderPane.alignment="CENTER" />
     </bottom>
+   <center>
+      <TextArea fx:id="operationLog" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="Monospaced Regular" size="13.0" />
+         </font>
+      </TextArea>
+   </center>
 </BorderPane>

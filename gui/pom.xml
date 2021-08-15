@@ -16,7 +16,7 @@
 
     <properties>
         <!-- Values needed to create installers -->
-        <main-class>pl.marcinchwedczuk.iunrar.gui/pl.marcinchwedczuk.iunrar.gui.App</main-class>
+        <main-class>pl.marcinchwedczuk.iunrar.gui/pl.marcinchwedczuk.iunrar.gui.Launcher</main-class>
         <app.name>iunrar</app.name>
         <app.version>1.0.0</app.version>
         <windows.upgrade.uuid>54c286aa-c3a4-4fdc-8cfe-76a5739b1cc6</windows.upgrade.uuid>
@@ -255,6 +255,7 @@
                                 </goals>
                                 <configuration>
                                     <toolName>jpackage</toolName>
+                                    <debug>true</debug>
                                     <removeDirectories>${project.build.directory}/installer-work</removeDirectories>
                                     <args>@${project.build.directory}/packaging/${platform}-jpackage.txt</args>
                                 </configuration>

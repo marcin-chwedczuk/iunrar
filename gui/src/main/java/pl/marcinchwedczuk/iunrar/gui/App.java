@@ -5,6 +5,7 @@ import javafx.application.HostServices;
 import javafx.stage.Stage;
 import pl.marcinchwedczuk.iunrar.gui.mainwindow.MainWindow;
 
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 
 /**
@@ -12,6 +13,11 @@ import java.util.concurrent.Executors;
  */
 public class App extends Application {
     public static boolean testMode = false;
+
+    private static String[] args = new String[] { "uninitialized args" };
+    public static String[] args() {
+        return args.clone();
+    }
 
     private static HostServices hostServices = null;
     public static HostServices hostServices() {
@@ -49,7 +55,9 @@ public class App extends Application {
         UiService.errorDialog(msg.toString());
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
+        App.args = args;
+
         launch();
     }
 }

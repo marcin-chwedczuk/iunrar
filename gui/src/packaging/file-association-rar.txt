@@ -1,0 +1,4 @@
+mime-type=application/x-rar-compressed
+extension=rar4
+description=RAR archive
+icon=${project.basedir}/app-icon.icns
