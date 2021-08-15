@@ -1,6 +1,5 @@
 package pl.marcinchwedczuk.iunrar.gui.mainwindow;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -44,8 +43,7 @@ public class MainWindow implements Initializable {
     @FXML
     private MenuItem closeMenuItem;
 
-    private final FileChooser openImageFileChooser = FileChoosers.newOpenImageFileChooser();
-    private final FileChooser saveHeaderFileChooser = FileChoosers.newSaveHeaderFileChooser();
+    private final FileChooser openArchiveFileChooser = FileChoosers.newOpenArchiveFileChooser();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -55,7 +53,6 @@ public class MainWindow implements Initializable {
             removeMenuItem(closeMenuItem);
         }
     }
-
 
     @FXML
     private void guiOpenArchive() {

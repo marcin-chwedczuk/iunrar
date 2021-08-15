@@ -74,7 +74,7 @@
             </dependency>
             <dependency>
                 <groupId>pl.marcinchwedczuk.iunrar</groupId>
-                <artifactId>commons-imaging</artifactId>
+                <artifactId>junrar</artifactId>
                 <version>1.0.0</version>
             </dependency>
 

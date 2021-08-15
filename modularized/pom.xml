@@ -13,7 +13,7 @@
 
     <modules>
         <module>guava</module>
-        <module>commons-imaging</module>
+        <module>junrar</module>
     </modules>
 
     <properties>
@@ -23,7 +23,7 @@
 
         <!-- dependencies to modularize -->
         <guava.version>30.1.1-jre</guava.version>
-        <commons-imaging.version>1.0-alpha2</commons-imaging.version>
+        <junrar.version>7.4.0</junrar.version>
 
         <maven-shade.plugin.version>3.2.4</maven-shade.plugin.version>
         <moditect.plugin.version>1.0.0.RC1</moditect.plugin.version>

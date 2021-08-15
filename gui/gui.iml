@@ -14,7 +14,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: pl.marcinchwedczuk.iunrar:guava:1.0.0" level="project" />
-    <orderEntry type="library" name="Maven: pl.marcinchwedczuk.iunrar:commons-imaging:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: pl.marcinchwedczuk.iunrar:junrar:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:16" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:mac:16" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:16" level="project" />

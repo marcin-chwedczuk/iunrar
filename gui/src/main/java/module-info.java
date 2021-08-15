@@ -7,7 +7,7 @@ module pl.marcinchwedczuk.iunrar.gui {
 
     // forced to be modular - see ./modularized directory
     requires _modularized_.com.google.common;
-    requires _modularized_.org.apache.commons.imaging;
+    requires _modularized_.com.github.junrar;
 
     exports pl.marcinchwedczuk.iunrar.gui;
     exports pl.marcinchwedczuk.iunrar.gui.mainwindow;

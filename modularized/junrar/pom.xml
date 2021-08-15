@@ -9,18 +9,24 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>commons-imaging</artifactId>
+    <artifactId>junrar</artifactId>
     <packaging>jar</packaging>
 
     <properties>
-        <generated-module-name>_modularized_.org.apache.commons.imaging</generated-module-name>
+        <generated-module-name>_modularized_.com.github.junrar</generated-module-name>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-imaging</artifactId>
-            <version>${commons-imaging.version}</version>
+            <groupId>com.github.junrar</groupId>
+            <artifactId>junrar</artifactId>
+            <version>${junrar.version}</version>
+        </dependency>
+        <!-- This must match _exactly_ the version of slf4j used by junrar -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.9</version>
         </dependency>
     </dependencies>
 </project>

@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>pl.marcinchwedczuk.iunrar</groupId>
-            <artifactId>commons-imaging</artifactId>
+            <artifactId>junrar</artifactId>
         </dependency>
 
         <!-- External -->
