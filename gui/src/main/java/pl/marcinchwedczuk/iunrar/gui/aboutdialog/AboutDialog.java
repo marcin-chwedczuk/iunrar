@@ -19,6 +19,7 @@ public class AboutDialog {
             FXMLLoader loader = new FXMLLoader(
                     AboutDialog.class.getResource("AboutDialog.fxml"));
 
+            // TODO: Icon https://iconarchive.com/show/plex-icons-by-cornmanthe3rd/Other-winrar-icon.html
             Stage childWindow = new Stage();
             childWindow.initOwner(owner);
             childWindow.initModality(Modality.WINDOW_MODAL);

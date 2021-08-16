@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import pl.marcinchwedczuk.iunrar.gui.App;
 import pl.marcinchwedczuk.iunrar.gui.Launcher;
 import pl.marcinchwedczuk.iunrar.gui.OsUtils;
+import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
 
 import java.awt.*;
@@ -75,14 +76,7 @@ public class MainWindow implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        /* After using getDesktop().setOpenFileHandler menu is broken.
-
-        if (OsUtils.isMac() && !App.testMode) {
-            mainMenu.setUseSystemMenuBar(true);
-            // MacOS will add Quit menu entry automatically
-            removeMenuItem(closeMenuItem);
-        }
-         */
+        // After using getDesktop().setOpenFileHandler javaFx native macOS menu will not work
 
         if (java.awt.Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
             Desktop.getDesktop().setOpenFileHandler(event -> {
@@ -94,11 +88,14 @@ public class MainWindow implements Initializable {
                     }
                 });
             });
+        } else {
+            UiService.errorDialog("Error: APP_OPEN_FILE feature is not supported.");
+            Platform.exit();
         }
 
         operationLog.appendText("FILE EVENTS:\n");
         for (var arg: Launcher.cachedFileOpenEvents) {
-            operationLog.appendText(arg);
+            operationLog.appendText(arg.getAbsolutePath());
             operationLog.appendText("\n");
         }
     }
@@ -129,10 +126,6 @@ public class MainWindow implements Initializable {
     @FXML
     private void guiClose() {
         thisWindow().close();
-    }
-
-    private static void removeMenuItem(MenuItem menuItem) {
-        menuItem.getParentMenu().getItems().remove(menuItem);
     }
 
     private Stage thisWindow() {
