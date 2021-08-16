@@ -24,26 +24,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * https://bugs.openjdk.java.net/browse/JDK-8208652
  */
 public class Launcher {
-    /** Stores FILE_OPEN event paths temporarily until application has started. */
-    public static final ConcurrentLinkedQueue<File> cachedFileOpenEvents = new ConcurrentLinkedQueue<>();
-
-    /**
-     * Attempt to listen for OPEN_FILE events as soon as possible.
-     */
     static {
-        if (java.awt.Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
-            Desktop.getDesktop().setOpenFileHandler(event -> {
-                for (File file : event.getFiles()) {
-                    cachedFileOpenEvents.offer(file);
-                }
-            });
-        }
+        OpenFileEvents.INSTANCE.saveExistingEvents();
     }
 
     public static void main(String[] args) {
         Application.launch(App.class, args);
-
-        // Terminate JVM without delay, once all windows are closed.
         Runtime.getRuntime().exit(0);
     }
 }

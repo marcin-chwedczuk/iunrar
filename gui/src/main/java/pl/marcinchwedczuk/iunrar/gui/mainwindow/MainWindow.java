@@ -1,29 +1,25 @@
 package pl.marcinchwedczuk.iunrar.gui.mainwindow;
 
 import com.github.junrar.Junrar;
-import com.google.common.io.Files;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import pl.marcinchwedczuk.iunrar.gui.App;
-import pl.marcinchwedczuk.iunrar.gui.Launcher;
-import pl.marcinchwedczuk.iunrar.gui.OsUtils;
+import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
+import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
+import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MainWindow implements Initializable {
 
@@ -46,57 +42,28 @@ public class MainWindow implements Initializable {
         }
     }
 
-    /** Queue of files to open */
-    private final ConcurrentLinkedQueue<File> fileQueue = new ConcurrentLinkedQueue<>();
-
-    /**
-     * Parses path to a file and enqueues the file, if valid.
-     *
-     * @param path Path to local file.
-     */
-    public void enqueueFile(String path) {
-        try {
-            final File file = new File(path);
-            fileQueue.add(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     private MenuBar mainMenu;
 
     @FXML
-    private MenuItem closeMenuItem;
-
-    @FXML
-    private TextArea operationLog;
+    private ListView<DecompressionQueueItem> decompressionQueue;
 
     private final FileChooser openArchiveFileChooser = FileChoosers.newOpenArchiveFileChooser();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // After using getDesktop().setOpenFileHandler javaFx native macOS menu will not work
+        decompressionQueue.setCellFactory(DecompressionQueueListViewCell::newCell);
+        decompressionQueue.getItems().setAll(
+                new DecompressionQueueItem(new File("foo.rar")),
+                new DecompressionQueueItem(new File("/Users/mc/bar.rar"))
+        );
 
-        if (java.awt.Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
-            Desktop.getDesktop().setOpenFileHandler(event -> {
-                for (File file : event.getFiles()) enqueueFile(file.getAbsolutePath());
-                Platform.runLater(() -> {
-                    while (fileQueue.size() > 0) {
-                        File f = fileQueue.poll();
-                        operationLog.appendText(f.toString() + "\n");
-                    }
-                });
-            });
-        } else {
-            UiService.errorDialog("Error: APP_OPEN_FILE feature is not supported.");
+        // Start receiving events
+        boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {
+        });
+        if (!ok) {
+            UiService.errorDialog("Error: Cannot subscribe to macOS open file events.");
             Platform.exit();
-        }
-
-        operationLog.appendText("FILE EVENTS:\n");
-        for (var arg: Launcher.cachedFileOpenEvents) {
-            operationLog.appendText(arg.getAbsolutePath());
-            operationLog.appendText("\n");
         }
     }
 
@@ -116,6 +83,16 @@ public class MainWindow implements Initializable {
                 e.printStackTrace();
             }
         }
+    }
+
+    @FXML
+    private void guiCancelAll() {
+
+    }
+
+    @FXML
+    private void guiPauseAll() {
+
     }
 
     @FXML
