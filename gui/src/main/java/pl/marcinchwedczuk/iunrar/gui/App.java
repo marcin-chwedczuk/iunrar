@@ -5,7 +5,7 @@ import javafx.application.HostServices;
 import javafx.stage.Stage;
 import pl.marcinchwedczuk.iunrar.gui.mainwindow.MainWindow;
 
-import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -22,6 +22,9 @@ public class App extends Application {
         return hostServices;
     }
 
+    private final ExecutorService decompressionExecutor =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
     @Override
     public void start(Stage stage) {
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
@@ -30,7 +33,13 @@ public class App extends Application {
         });
 
         App.hostServices = this.getHostServices();
-        MainWindow.showOn(stage);
+        MainWindow.show(stage, decompressionExecutor);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        decompressionExecutor.shutdown();
+        super.stop();
     }
 
     private void showExceptionDialog(Throwable e) {

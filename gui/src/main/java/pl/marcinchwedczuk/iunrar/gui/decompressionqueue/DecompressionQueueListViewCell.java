@@ -1,5 +1,7 @@
 package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
 
+import javafx.beans.binding.Bindings;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -51,30 +53,57 @@ public class DecompressionQueueListViewCell
 
         if (empty) {
             setGraphic(null);
+            message.textProperty().unbind();
+            progress.progressProperty().unbind();
+            stopButton.disableProperty().unbind();
+            pauseButton.disableProperty().unbind();
+            pauseButton.setText("Pause");
         }
         else {
             setGraphic(root);
-        }
+            message.textProperty().bind(item.messageProperty());
+            progress.progressProperty().bind(item.progressProperty());
+            stopButton.disableProperty().bind(Bindings.createBooleanBinding(
+                    () -> {
+                        var state = item.stateProperty().getValue();
+                        return state == Worker.State.SUCCEEDED ||
+                                state == Worker.State.FAILED ||
+                                state == Worker.State.CANCELLED;
+                    },
+                    item.stateProperty()));
 
-        bindToModel(item, empty);
-    }
-
-    private void bindToModel(DecompressionQueueItem item, boolean empty) {
-        if (empty) {
-            message.textProperty().unbind();
-        }
-        else {
-            message.textProperty().bind(item.absolutePathProperty());
+            pauseButton.disableProperty().bind(Bindings.createBooleanBinding(
+                    () -> {
+                        var state = item.stateProperty().getValue();
+                        return state == Worker.State.SUCCEEDED ||
+                                state == Worker.State.FAILED ||
+                                state == Worker.State.CANCELLED;
+                    }, item.stateProperty()));
+            pauseButton.setText(item.isPaused() ? "Resume" : "Pause");
         }
     }
 
     @FXML
     private void guiStop() {
-
+        DecompressionQueueItem item = getItem();
+        if (item != null) {
+            // Allow cancel logic to execute
+            item.cancel(false);
+        }
     }
 
     @FXML
     private void guiPause() {
+        DecompressionQueueItem item = getItem();
+        if (item != null) {
+            item.setPaused(!item.isPaused());
+        }
 
+        if (item.isPaused()) {
+            pauseButton.setText("Resume");
+        }
+        else {
+            pauseButton.setText("Pause");
+        }
     }
 }

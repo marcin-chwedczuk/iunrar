@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane fx:id="mainWindow" minHeight="100.0" minWidth="100.0" styleClass="mainWindow" stylesheets="@MainWindow.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.mainwindow.MainWindow">
+<BorderPane fx:id="mainWindow" minHeight="100.0" minWidth="100.0" styleClass="mainWindow" stylesheets="@MainWindow.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
     <children>
     </children>
     <top>

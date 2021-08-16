@@ -19,16 +19,20 @@ import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListVi
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
 
 public class MainWindow implements Initializable {
 
-    public static MainWindow showOn(Stage window) {
+    public static MainWindow show(Stage window, Executor decompressionExecutor) {
         try {
             FXMLLoader loader = new FXMLLoader(MainWindow.class.getResource("MainWindow.fxml"));
 
+            MainWindow controller = new MainWindow(decompressionExecutor);
+            loader.setController(controller);
+
             Scene scene = new Scene(loader.load());
-            MainWindow controller = (MainWindow) loader.getController();
 
             window.setTitle("iunrar");
             window.setScene(scene);
@@ -48,7 +52,12 @@ public class MainWindow implements Initializable {
     @FXML
     private ListView<DecompressionQueueItem> decompressionQueue;
 
+    private final Executor decompressionExecutor;
     private final FileChooser openArchiveFileChooser = FileChoosers.newOpenArchiveFileChooser();
+
+    public MainWindow(Executor decompressionExecutor) {
+        this.decompressionExecutor = Objects.requireNonNull(decompressionExecutor);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -57,6 +66,10 @@ public class MainWindow implements Initializable {
                 new DecompressionQueueItem(new File("foo.rar")),
                 new DecompressionQueueItem(new File("/Users/mc/bar.rar"))
         );
+
+        for (DecompressionQueueItem item : decompressionQueue.getItems()) {
+            decompressionExecutor.execute(item);
+        }
 
         // Start receiving events
         boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {
