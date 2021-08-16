@@ -10,12 +10,14 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import pl.marcinchwedczuk.iunrar.gui.AppPreferences;
 import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -70,6 +72,9 @@ public class MainWindow implements Initializable {
         for (DecompressionQueueItem item : decompressionQueue.getItems()) {
             decompressionExecutor.execute(item);
         }
+
+        System.out.println(new AppPreferences().getOpenFolderAfterDecompression());
+        new AppPreferences().setOpenFolderAfterDecompression(false);
 
         // Start receiving events
         boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {

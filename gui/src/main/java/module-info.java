@@ -4,6 +4,7 @@ module pl.marcinchwedczuk.iunrar.gui {
     requires javafx.graphics;
     requires javafx.swing;
     requires java.desktop;
+    requires java.prefs;
 
     // forced to be modular - see ./modularized directory
     requires _modularized_.com.google.common;
