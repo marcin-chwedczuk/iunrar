@@ -1,5 +1,6 @@
 package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
@@ -7,9 +8,13 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
+import pl.marcinchwedczuk.iunrar.gui.UiService;
+import pl.marcinchwedczuk.iunrar.gui.decompression.RarUnpacker;
+import pl.marcinchwedczuk.iunrar.gui.decompression.UnpackProgressCallback;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DecompressionQueueItem extends Task<Void> {
@@ -23,6 +28,41 @@ public class DecompressionQueueItem extends Task<Void> {
 
     @Override
     protected Void call() throws Exception {
+        try {
+            // Remove rar extension
+            File destination = new File(
+                    archive.getAbsolutePath().replaceAll("\\.rar$", ""));
+
+            updateMessage("Creating output directory...");
+            destination.mkdirs();
+
+            RarUnpacker unpacker = new RarUnpacker(
+                    archive,
+                    Optional.empty(),
+                    destination,
+                    (message, progress) -> {
+
+                        updateMessage(message);
+                        updateProgress(progress, 100.0);
+                    });
+
+            unpacker.unpack();
+
+            Runtime.getRuntime().exec("open .", new String[]{ }, destination);
+
+            updateMessage("Done.");
+            updateProgress(100.0, 100.0);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Platform.runLater(() -> {
+                UiService.errorDialog(e.getClass().getName() + ": " + e.getMessage());
+            });
+        }
+        return null;
+    }
+
+    protected Void callOld() throws Exception {
         for (int i = 0; i <= 20; i++) {
             spinWaitWhenPaused();
 

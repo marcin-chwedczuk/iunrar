@@ -64,10 +64,6 @@ public class MainWindow implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         decompressionQueue.setCellFactory(DecompressionQueueListViewCell::newCell);
-        decompressionQueue.getItems().setAll(
-                new DecompressionQueueItem(new File("foo.rar")),
-                new DecompressionQueueItem(new File("/Users/mc/bar.rar"))
-        );
 
         for (DecompressionQueueItem item : decompressionQueue.getItems()) {
             decompressionExecutor.execute(item);
@@ -89,17 +85,9 @@ public class MainWindow implements Initializable {
     private void guiOpenArchive() {
         File archive = openArchiveFileChooser.showOpenDialog(thisWindow());
         if (archive != null) {
-            try {
-                // TODO: Fix shitty logic here
-                File destination = new File(archive.getAbsolutePath().replace(".rar", ""));
-                if (!destination.mkdir()) {
-                    throw new RuntimeException("Cannot create directory: " + destination);
-                }
-
-                Junrar.extract(archive, destination);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            DecompressionQueueItem item = new DecompressionQueueItem(archive);
+            decompressionQueue.getItems().add(item);
+            decompressionExecutor.execute(item);
         }
     }
 
