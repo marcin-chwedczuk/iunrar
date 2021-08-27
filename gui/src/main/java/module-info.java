@@ -11,14 +11,11 @@ module pl.marcinchwedczuk.iunrar.gui {
     requires _modularized_.com.github.junrar;
 
     exports pl.marcinchwedczuk.iunrar.gui;
-    exports pl.marcinchwedczuk.iunrar.gui.mainwindow;
-    // exports pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
-    exports pl.marcinchwedczuk.iunrar.gui.aboutdialog;
-    exports pl.marcinchwedczuk.iunrar.gui.testfilechooser;
 
     // Allow @FXML injection to private fields.
     opens pl.marcinchwedczuk.iunrar.gui.mainwindow;
     opens pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
     opens pl.marcinchwedczuk.iunrar.gui.aboutdialog;
+    opens pl.marcinchwedczuk.iunrar.gui.conflictdialog;
     opens pl.marcinchwedczuk.iunrar.gui.testfilechooser;
 }

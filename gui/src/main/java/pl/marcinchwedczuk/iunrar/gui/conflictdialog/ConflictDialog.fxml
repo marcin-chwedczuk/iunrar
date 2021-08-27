@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootElement" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.conflictdialog.ConflictDialog">
+   <children>
+      <HBox>
+         <children>
+            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <TextArea editable="false" text="Info" />
+         </children>
+      </HBox>
+      <Label text="File:" />
+      <TextArea fx:id="fileNameArea" editable="false" wrapText="true" />
+      <Separator />
+      <Label text="File Size:" />
+      <HBox>
+         <children>
+            <Label fx:id="existingSizeLabel" text="0 B" />
+            <Label text="-&gt;" />
+            <Label fx:id="newSizeLabel" text="0 B" />
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <VBox alignment="BOTTOM_CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#guiStop" text="Stop" />
+               </children>
+            </VBox>
+            <VBox alignment="BOTTOM_CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#guiSkipAll" text="Skip All" />
+                  <Button mnemonicParsing="false" onAction="#guiSkip" text="Skip" />
+               </children>
+            </VBox>
+            <VBox alignment="BOTTOM_CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#guiOverwriteAll" text="Overwrite All" />
+                  <Button mnemonicParsing="false" onAction="#guiOverwrite" text="Overwrite" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>

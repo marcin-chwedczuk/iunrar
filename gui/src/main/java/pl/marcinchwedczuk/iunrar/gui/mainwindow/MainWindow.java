@@ -14,6 +14,7 @@ import pl.marcinchwedczuk.iunrar.gui.AppPreferences;
 import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
+import pl.marcinchwedczuk.iunrar.gui.conflictdialog.ConflictDialog;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
 
@@ -99,6 +100,11 @@ public class MainWindow implements Initializable {
     @FXML
     private void guiPauseAll() {
 
+    }
+
+    @FXML
+    private void testShowConflict() {
+        ConflictDialog.show(thisWindow());
     }
 
     @FXML

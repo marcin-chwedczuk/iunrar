@@ -33,12 +33,11 @@ class LocalJunrar {
         return extractArchiveTo(archive, lfe);
     }
 
-    public static List<ContentDescription> getContentsDescription(File rar,
-                                                                  String password,
-                                                                  UnrarCallback progressCallback
-    ) throws RarException, IOException {
+    public static List<ContentDescription> getContentsDescription(File rar, String password)
+            throws RarException, IOException
+    {
         validateRarPath(rar);
-        final Archive arch = createArchiveOrThrowException(rar, password, progressCallback);
+        final Archive arch = createArchiveOrThrowException(rar, password, null);
         return getContentsDescriptionFromArchive(arch);
     }
 

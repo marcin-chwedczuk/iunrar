@@ -30,6 +30,7 @@
                 <Menu text="_Help">
                     <items>
                         <MenuItem onAction="#guiShowAbout" text="_About..." />
+                        <MenuItem onAction="#testShowConflict" text="TEST - Show conflict" />
                     </items>
                 </Menu>
             </menus>

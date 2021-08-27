@@ -29,26 +29,18 @@ public class DecompressionQueueItem extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-            // Remove rar extension
-            File destination = new File(
-                    archive.getAbsolutePath().replaceAll("\\.rar$", ""));
-
-            updateMessage("Creating output directory...");
-            destination.mkdirs();
 
             RarUnpacker unpacker = new RarUnpacker(
                     archive,
-                    Optional.empty(),
-                    destination,
                     (message, progress) -> {
 
                         updateMessage(message);
                         updateProgress(progress, 100.0);
                     });
 
-            unpacker.unpack();
+            File destinationDirectory = unpacker.unpack();
 
-            Runtime.getRuntime().exec("open .", new String[]{ }, destination);
+            Runtime.getRuntime().exec("open .", new String[]{ }, destinationDirectory);
 
             updateMessage("Done.");
             updateProgress(100.0, 100.0);
