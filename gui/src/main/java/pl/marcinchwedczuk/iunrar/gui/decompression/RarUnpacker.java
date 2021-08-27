@@ -1,23 +1,23 @@
 package pl.marcinchwedczuk.iunrar.gui.decompression;
 
-import com.github.junrar.UnrarCallback;
 import com.github.junrar.exception.RarException;
-import com.github.junrar.volume.Volume;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
 public class RarUnpacker {
     private final File rarArchive;
     private final UnpackProgressCallback progressCallback;
+    private final FileConflictResolutionProvider conflictResolutionProvider;
 
     public RarUnpacker(File rarArchive,
-                       UnpackProgressCallback progressCallback) {
+                       UnpackProgressCallback progressCallback,
+                       FileConflictResolutionProvider conflictResolutionProvider) {
         this.rarArchive = requireNonNull(rarArchive);
         this.progressCallback = requireNonNull(progressCallback);
+        this.conflictResolutionProvider = conflictResolutionProvider;
     }
 
     public File unpack() {
@@ -38,7 +38,13 @@ public class RarUnpacker {
             progressCallback.update("Getting list of files...", 0.0);
             long totalFiles = LocalJunrar.getContentsDescription(rarArchive, password).size();
 
-            LocalJunrar.extract(rarArchive, destinationDirectory, password, totalFiles, progressCallback);
+            LocalJunrar.extract(
+                    rarArchive,
+                    destinationDirectory,
+                    password,
+                    totalFiles,
+                    progressCallback,
+                    conflictResolutionProvider);
 
             return destinationDirectory;
         } catch (RarException | IOException e) {

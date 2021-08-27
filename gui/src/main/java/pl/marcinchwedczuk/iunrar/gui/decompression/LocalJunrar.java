@@ -23,13 +23,15 @@ class LocalJunrar {
                                      final File destinationFolder,
                                      final String password,
                                      long totalFiles,
-                                     final UnpackProgressCallback progressCallback)
+                                     final UnpackProgressCallback progressCallback,
+                                     FileConflictResolutionProvider conflictResolutionProvider)
             throws RarException, IOException {
         validateRarPath(rar);
         validateDestinationPath(destinationFolder);
 
         final Archive archive = createArchiveOrThrowException(rar, password, null);
-        LocalFolderExtractor lfe = new LocalFolderExtractor(totalFiles, destinationFolder, progressCallback);
+        LocalFolderExtractor lfe = new LocalFolderExtractor(
+                totalFiles, destinationFolder, progressCallback, conflictResolutionProvider);
         return extractArchiveTo(archive, lfe);
     }
 

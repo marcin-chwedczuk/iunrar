@@ -9,18 +9,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolution.OVERWRITE;
+
 class LocalFolderExtractor {
     private final long totalFiles;
     private final File folderDestination;
     private final UnpackProgressCallback progressCallback;
+    private final FileConflictResolutionProvider conflictResolutionProvider;
 
     private long extracted = 0;
     private double lastProgress = -100;
 
-    LocalFolderExtractor(long totalFiles, final File destination, UnpackProgressCallback progressCallback) {
+    LocalFolderExtractor(long totalFiles,
+                         File destination,
+                         UnpackProgressCallback progressCallback,
+                         FileConflictResolutionProvider conflictResolutionProvider) {
         this.totalFiles = totalFiles;
         this.folderDestination = destination;
         this.progressCallback = progressCallback;
+        this.conflictResolutionProvider = conflictResolutionProvider;
     }
 
     private void updateProgress(String path) {
@@ -38,7 +45,7 @@ class LocalFolderExtractor {
     File createDirectory(final FileHeader fh) {
         String fileName = null;
         if (fh.isDirectory()) {
-            fileName = fh.getFileName();
+            fileName = FileNameUtil.getFileName(fh);
         }
 
         if (fileName == null) {
@@ -65,26 +72,46 @@ class LocalFolderExtractor {
         final FileHeader fileHeader
     ) throws RarException, IOException {
         final File f = createFile(fileHeader, folderDestination);
-        try (OutputStream stream = new FileOutputStream(f)) {
-            arch.extractFile(fileHeader, stream);
+        if (f != null) {
+            try (OutputStream stream = new FileOutputStream(f)) {
+                arch.extractFile(fileHeader, stream);
+            }
         }
         return f;
     }
 
     private File createFile(final FileHeader fh, final File destination) throws IOException {
-        String name = fh.getFileName();
+        String name = FileNameUtil.getFileName(fh);
         File f = new File(destination, name);
         String dirCanonPath = f.getCanonicalPath();
         if (!dirCanonPath.startsWith(destination.getCanonicalPath())) {
             String errorMessage = "Rar contains file with invalid path: '" + dirCanonPath + "'";
             throw new IllegalStateException(errorMessage);
         }
-        if (!f.exists()) {
-            try {
-                f = makeFile(destination, name);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
+
+        FileConflictResolution resolution = OVERWRITE;
+        if (f.exists()) {
+            resolution = conflictResolutionProvider.resolveConflict(
+                    f,
+                    f.length(),
+                    fh.getUnpSize());
+        }
+
+        switch (resolution) {
+            case STOP_OPERATION:
+                throw new RuntimeException("Stopped by user!");
+            case SKIP:
+                f = null;
+                break;
+            case OVERWRITE:
+                if (!f.exists()) {
+                    try {
+                        f = makeFile(destination, name);
+                    } catch (final IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                break;
         }
 
         updateProgress(name);

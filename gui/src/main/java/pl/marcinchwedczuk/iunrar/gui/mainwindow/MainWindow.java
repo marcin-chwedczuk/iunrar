@@ -1,6 +1,5 @@
 package pl.marcinchwedczuk.iunrar.gui.mainwindow;
 
-import com.github.junrar.Junrar;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,10 +14,10 @@ import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
 import pl.marcinchwedczuk.iunrar.gui.conflictdialog.ConflictDialog;
+import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionProvider;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -86,7 +85,10 @@ public class MainWindow implements Initializable {
     private void guiOpenArchive() {
         File archive = openArchiveFileChooser.showOpenDialog(thisWindow());
         if (archive != null) {
-            DecompressionQueueItem item = new DecompressionQueueItem(archive);
+            DecompressionQueueItem item = new DecompressionQueueItem(
+                    archive,
+                    new GuiFileConflictResolutionProvider(thisWindow()));
+
             decompressionQueue.getItems().add(item);
             decompressionExecutor.execute(item);
         }
@@ -104,7 +106,7 @@ public class MainWindow implements Initializable {
 
     @FXML
     private void testShowConflict() {
-        ConflictDialog.show(thisWindow());
+        ConflictDialog.show(thisWindow(), "foo", 10, 20);
     }
 
     @FXML

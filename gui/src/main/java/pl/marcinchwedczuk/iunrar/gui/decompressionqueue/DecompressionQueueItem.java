@@ -1,29 +1,27 @@
 package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
 
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.StringBinding;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
+import pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolutionProvider;
 import pl.marcinchwedczuk.iunrar.gui.decompression.RarUnpacker;
-import pl.marcinchwedczuk.iunrar.gui.decompression.UnpackProgressCallback;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.Objects.requireNonNull;
 
 public class DecompressionQueueItem extends Task<Void> {
     private final File archive;
 
+    private final FileConflictResolutionProvider fileConflictResolutionProvider;
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
-    public DecompressionQueueItem(File archive) {
-        this.archive = Objects.requireNonNull(archive);
+    public DecompressionQueueItem(File archive,
+                                  FileConflictResolutionProvider fileConflictResolutionProvider) {
+        this.archive = requireNonNull(archive);
+        this.fileConflictResolutionProvider = requireNonNull(fileConflictResolutionProvider);
     }
 
     @Override
@@ -36,7 +34,8 @@ public class DecompressionQueueItem extends Task<Void> {
 
                         updateMessage(message);
                         updateProgress(progress, 100.0);
-                    });
+                    },
+                    fileConflictResolutionProvider);
 
             File destinationDirectory = unpacker.unpack();
 
