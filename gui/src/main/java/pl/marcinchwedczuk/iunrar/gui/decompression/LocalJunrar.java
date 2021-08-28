@@ -31,7 +31,7 @@ class LocalJunrar {
 
         final Archive archive = createArchiveOrThrowException(rar, password, null);
         LocalFolderExtractor lfe = new LocalFolderExtractor(
-                totalFiles, destinationFolder, progressCallback, conflictResolutionProvider);
+                rar, totalFiles, destinationFolder, progressCallback, conflictResolutionProvider);
         return extractArchiveTo(archive, lfe);
     }
 

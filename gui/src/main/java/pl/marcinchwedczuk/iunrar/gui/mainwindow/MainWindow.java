@@ -87,7 +87,7 @@ public class MainWindow implements Initializable {
         if (archive != null) {
             DecompressionQueueItem item = new DecompressionQueueItem(
                     archive,
-                    new GuiFileConflictResolutionProvider(thisWindow()));
+                    new GuiFileConflictResolutionProvider());
 
             decompressionQueue.getItems().add(item);
             decompressionExecutor.execute(item);
@@ -106,7 +106,7 @@ public class MainWindow implements Initializable {
 
     @FXML
     private void testShowConflict() {
-        ConflictDialog.show(thisWindow(), "foo", 10, 20);
+        ConflictDialog.showAndWaitForAnswer("archive.rar", "foo", 10, 20);
     }
 
     @FXML

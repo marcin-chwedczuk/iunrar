@@ -18,24 +18,23 @@ import java.io.IOException;
 
 public class ConflictDialog {
 
-    public static FileConflictResolution show(
-            Window owner, String fileName, long oldSize, long newSize
+    public static FileConflictResolution showAndWaitForAnswer(
+            String archiveName, String fileName, long oldSize, long newSize
     ) {
         try {
             FXMLLoader loader = new FXMLLoader(
                     ConflictDialog.class.getResource("ConflictDialog.fxml"));
 
             Stage childWindow = new Stage();
-            childWindow.initOwner(owner);
-            childWindow.initModality(Modality.WINDOW_MODAL);
-            childWindow.initStyle(StageStyle.UNDECORATED);
+            childWindow.initModality(Modality.APPLICATION_MODAL);
+            childWindow.initStyle(StageStyle.UTILITY);
             childWindow.setTitle("File Conflict");
             childWindow.setScene(new Scene(loader.load()));
             childWindow.setResizable(false);
             childWindow.sizeToScene();
 
             ConflictDialog controller = loader.getController();
-            controller.initialize(fileName, oldSize, newSize);
+            controller.initialize(fileName, archiveName, oldSize, newSize);
 
             childWindow.showAndWait();
 
@@ -49,7 +48,9 @@ public class ConflictDialog {
     private VBox rootElement;
 
     @FXML
-    private TextArea fileNameArea;
+    private Label guiFile;
+    @FXML
+    private Label guiArchive;
     @FXML
     private Label existingSizeLabel;
     @FXML
@@ -57,8 +58,11 @@ public class ConflictDialog {
 
     private FileConflictResolution answer = FileConflictResolution.STOP_OPERATION;
 
-    private void initialize(String fileName, long oldSize, long newSize) {
-        fileNameArea.setText(fileName);
+    private void initialize(String fileName,
+                            String archiveName,
+                            long oldSize, long newSize) {
+        guiArchive.setText(archiveName);
+        guiFile.setText(fileName);
         existingSizeLabel.setText(oldSize + " B");
         newSizeLabel.setText(newSize + " B");
     }

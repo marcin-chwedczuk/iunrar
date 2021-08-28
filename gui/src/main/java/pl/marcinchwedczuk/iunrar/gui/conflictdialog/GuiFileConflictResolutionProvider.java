@@ -10,16 +10,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class GuiFileConflictResolutionProvider implements FileConflictResolutionProvider {
-    private final Stage mainWindow;
-
-    public GuiFileConflictResolutionProvider(Stage mainWindow) {
-        this.mainWindow = mainWindow;
-    }
-
     @Override
-    public FileConflictResolution resolveConflict(File file, long oldSizeBytes, long newSizeBytes) {
+    public FileConflictResolution resolveConflict(File archive, File file,
+                                                  long oldSizeBytes, long newSizeBytes) {
         if (Platform.isFxApplicationThread()) {
-            return resolveConflictImpl(file, oldSizeBytes, newSizeBytes);
+            return resolveConflictImpl(archive, file, oldSizeBytes, newSizeBytes);
         }
 
         AtomicReference<FileConflictResolution> answer = new AtomicReference<>(null);
@@ -27,7 +22,7 @@ public class GuiFileConflictResolutionProvider implements FileConflictResolution
 
         Platform.runLater(() -> {
             try {
-                answer.set(resolveConflictImpl(file, oldSizeBytes, newSizeBytes));
+                answer.set(resolveConflictImpl(archive, file, oldSizeBytes, newSizeBytes));
             } finally {
                 waitForAnswer.countDown();
             }
@@ -42,11 +37,12 @@ public class GuiFileConflictResolutionProvider implements FileConflictResolution
         return answer.get();
     }
 
-    private FileConflictResolution resolveConflictImpl(File file,
+    private FileConflictResolution resolveConflictImpl(File archive,
+                                                       File file,
                                                        long oldSizeBytes,
                                                        long newSizeBytes) {
-        return ConflictDialog.show(
-                mainWindow,
+        return ConflictDialog.showAndWaitForAnswer(
+                archive.getAbsolutePath(),
                 file.getAbsolutePath(),
                 oldSizeBytes,
                 newSizeBytes);

@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import static pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolution.OVERWRITE;
 
 class LocalFolderExtractor {
+    private final File archiveFile;
     private final long totalFiles;
     private final File folderDestination;
     private final UnpackProgressCallback progressCallback;
@@ -20,10 +21,12 @@ class LocalFolderExtractor {
     private long extracted = 0;
     private double lastProgress = -100;
 
-    LocalFolderExtractor(long totalFiles,
+    LocalFolderExtractor(File archiveFile,
+                         long totalFiles,
                          File destination,
                          UnpackProgressCallback progressCallback,
                          FileConflictResolutionProvider conflictResolutionProvider) {
+        this.archiveFile = archiveFile;
         this.totalFiles = totalFiles;
         this.folderDestination = destination;
         this.progressCallback = progressCallback;
@@ -80,7 +83,8 @@ class LocalFolderExtractor {
         return f;
     }
 
-    private File createFile(final FileHeader fh, final File destination) throws IOException {
+    private File createFile(FileHeader fh,
+                            File destination) throws IOException {
         String name = FileNameUtil.getFileName(fh);
         File f = new File(destination, name);
         String dirCanonPath = f.getCanonicalPath();
@@ -92,6 +96,7 @@ class LocalFolderExtractor {
         FileConflictResolution resolution = OVERWRITE;
         if (f.exists()) {
             resolution = conflictResolutionProvider.resolveConflict(
+                    archiveFile,
                     f,
                     f.length(),
                     fh.getUnpSize());
