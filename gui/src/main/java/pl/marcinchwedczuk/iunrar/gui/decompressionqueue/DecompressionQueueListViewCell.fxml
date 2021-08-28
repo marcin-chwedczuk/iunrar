@@ -1,32 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-
-<GridPane fx:id="root" minHeight="100.0" minWidth="200.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell">
+<GridPane fx:id="root" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell">
    <rowConstraints>
+      <RowConstraints maxHeight="32.0" minHeight="32.0" prefHeight="32.0" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" />
-      <RowConstraints minHeight="0.0" valignment="CENTER" vgrow="ALWAYS" />
+      <RowConstraints minHeight="10.0" />
    </rowConstraints>
    <columnConstraints>
       <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
    </columnConstraints>
    <children>
-      <ProgressBar fx:id="progress" progress="0.0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
+      <ProgressBar fx:id="progress" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
       <Label fx:id="message" text="Unpacking 7 out of 1023 files..." GridPane.rowIndex="1" />
-      <HBox alignment="CENTER_RIGHT" GridPane.rowIndex="2">
+      <HBox alignment="CENTER_RIGHT" spacing="8.0" GridPane.rowIndex="2">
          <children>
-            <Button fx:id="stopButton" mnemonicParsing="false" onAction="#guiStop" text="Stop" />
-            <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#guiPause" text="Pause" />
+            <Button fx:id="stopButton" mnemonicParsing="false" onAction="#guiStop" text="Stop">
+               <graphic>
+                  <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@icons/cancel.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#guiPause" text="Pause">
+               <graphic>
+                  <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@icons/pause.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
          </children>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
       </HBox>
    </children>
+   <padding>
+      <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+   </padding>
 </GridPane>

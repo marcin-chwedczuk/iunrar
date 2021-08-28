@@ -17,6 +17,7 @@ import pl.marcinchwedczuk.iunrar.gui.conflictdialog.ConflictDialog;
 import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionProvider;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
+import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.NoSelectionModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +64,7 @@ public class MainWindow implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        decompressionQueue.setSelectionModel(new NoSelectionModel<>());
         decompressionQueue.setCellFactory(DecompressionQueueListViewCell::newCell);
 
         for (DecompressionQueueItem item : decompressionQueue.getItems()) {
