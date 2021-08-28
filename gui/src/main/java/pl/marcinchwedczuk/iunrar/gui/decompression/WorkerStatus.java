@@ -1,6 +1,6 @@
 package pl.marcinchwedczuk.iunrar.gui.decompression;
 
-public interface UnpackProgressCallback {
+public interface WorkerStatus {
     /**
      * @param message
      *  Message describing progress e.g. unpacking foo.java
