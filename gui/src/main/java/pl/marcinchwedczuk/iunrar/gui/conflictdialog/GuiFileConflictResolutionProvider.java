@@ -10,9 +10,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class GuiFileConflictResolutionProvider implements FileConflictResolutionProvider {
+    private AtomicReference<FileConflictResolution> forAllRemaining = new AtomicReference<>();
+
     @Override
     public FileConflictResolution resolveConflict(File archive, File file,
                                                   long oldSizeBytes, long newSizeBytes) {
+        if (forAllRemaining.get() != null) {
+            return forAllRemaining.get();
+        }
+
         if (Platform.isFxApplicationThread()) {
             return resolveConflictImpl(archive, file, oldSizeBytes, newSizeBytes);
         }
@@ -41,10 +47,31 @@ public class GuiFileConflictResolutionProvider implements FileConflictResolution
                                                        File file,
                                                        long oldSizeBytes,
                                                        long newSizeBytes) {
-        return ConflictDialog.showAndWaitForAnswer(
+        GuiConflictResolutionAnswer answer = ConflictDialog.showAndWaitForAnswer(
                 archive.getAbsolutePath(),
                 file.getAbsolutePath(),
                 oldSizeBytes,
                 newSizeBytes);
+
+        switch (answer) {
+            case STOP_OPERATION:
+                return FileConflictResolution.STOP_OPERATION;
+
+            case SKIP:
+                return FileConflictResolution.SKIP;
+
+            case SKIP_ALL:
+                forAllRemaining.set(FileConflictResolution.SKIP);
+                return forAllRemaining.get();
+
+            case OVERWRITE:
+                return FileConflictResolution.OVERWRITE;
+
+            case OVERWRITE_ALL:
+                forAllRemaining.set(FileConflictResolution.OVERWRITE);
+                return forAllRemaining.get();
+        }
+
+        throw new AssertionError();
     }
 }

@@ -59,24 +59,6 @@ class LocalJunrar {
         return contents;
     }
 
-    private static Archive createArchiveOrThrowException(final VolumeManager volumeManager, final String password) throws RarException, IOException {
-        try {
-            return new Archive(volumeManager, null, password);
-        } catch (final RarException | IOException e) {
-            LocalJunrar.logger.error("Error while creating archive", e);
-            throw e;
-        }
-    }
-
-    private static Archive createArchiveOrThrowException(final InputStream rarAsStream, final String password) throws RarException, IOException {
-        try {
-            return new Archive(rarAsStream, password);
-        } catch (final RarException | IOException e) {
-            LocalJunrar.logger.error("Error while creating archive", e);
-            throw e;
-        }
-    }
-
     private static Archive createArchiveOrThrowException(File file,
                                                          String password,
                                                          UnrarCallback progressCallback) throws RarException, IOException {

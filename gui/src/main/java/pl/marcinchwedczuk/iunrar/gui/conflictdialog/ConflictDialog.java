@@ -18,7 +18,7 @@ import java.io.IOException;
 
 public class ConflictDialog {
 
-    public static FileConflictResolution showAndWaitForAnswer(
+    public static GuiConflictResolutionAnswer showAndWaitForAnswer(
             String archiveName, String fileName, long oldSize, long newSize
     ) {
         try {
@@ -56,7 +56,7 @@ public class ConflictDialog {
     @FXML
     private Label newSizeLabel;
 
-    private FileConflictResolution answer = FileConflictResolution.STOP_OPERATION;
+    private GuiConflictResolutionAnswer answer = GuiConflictResolutionAnswer.STOP_OPERATION;
 
     private void initialize(String fileName,
                             String archiveName,
@@ -69,31 +69,31 @@ public class ConflictDialog {
 
     @FXML
     private void guiStop() {
-        answer = FileConflictResolution.STOP_OPERATION;
-        guiClose();
-    }
-
-    @FXML
-    private void guiSkipAll() {
-        answer = FileConflictResolution.SKIP;
+        answer = GuiConflictResolutionAnswer.STOP_OPERATION;
         guiClose();
     }
 
     @FXML
     private void guiSkip() {
-        answer = FileConflictResolution.SKIP;
+        answer = GuiConflictResolutionAnswer.SKIP;
         guiClose();
     }
 
     @FXML
-    private void guiOverwriteAll() {
-        answer = FileConflictResolution.OVERWRITE;
+    private void guiSkipAll() {
+        answer = GuiConflictResolutionAnswer.SKIP_ALL;
         guiClose();
     }
 
     @FXML
     private void guiOverwrite() {
-        answer = FileConflictResolution.OVERWRITE;
+        answer = GuiConflictResolutionAnswer.OVERWRITE;
+        guiClose();
+    }
+
+    @FXML
+    private void guiOverwriteAll() {
+        answer = GuiConflictResolutionAnswer.OVERWRITE_ALL;
         guiClose();
     }
 
