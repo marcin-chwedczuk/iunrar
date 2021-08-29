@@ -1,5 +1,6 @@
 package pl.marcinchwedczuk.iunrar.gui.decompression;
 
+import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
 
 import java.io.File;
@@ -12,13 +13,16 @@ public class RarUnpacker {
     private final File rarArchive;
     private final WorkerStatus progressCallback;
     private final FileConflictResolutionProvider conflictResolutionProvider;
+    private final PasswordProvider passwordProvider;
 
     public RarUnpacker(File rarArchive,
                        WorkerStatus progressCallback,
-                       FileConflictResolutionProvider conflictResolutionProvider) {
+                       FileConflictResolutionProvider conflictResolutionProvider,
+                       PasswordProvider passwordProvider) {
         this.rarArchive = requireNonNull(rarArchive);
         this.progressCallback = requireNonNull(progressCallback);
-        this.conflictResolutionProvider = conflictResolutionProvider;
+        this.conflictResolutionProvider = requireNonNull(conflictResolutionProvider);
+        this.passwordProvider = requireNonNull(passwordProvider);
     }
 
     public File unpack() throws InterruptedException {
@@ -36,8 +40,12 @@ public class RarUnpacker {
                 throw new RuntimeException("Cannot create output directory: '" + destinationDirectory + "'.");
             }
 
+            // Find out password and reuse for further operations
+            Archive arch = LocalFolderExtractor.createArchiveOrThrowException(rarArchive, passwordProvider);
+            RelayPasswordProvider relayPasswordProvider = new RelayPasswordProvider(arch.getPassword());
+
             progressCallback.updateMessage(IMPORTANT, "Computing total size...");
-            long totalSize = LocalFolderExtractor.getContentsDescription(rarArchive, password).stream()
+            long totalSize = LocalFolderExtractor.getContentsDescription(rarArchive, relayPasswordProvider).stream()
                     .mapToLong(cd -> cd.size)
                     .sum();
 
@@ -45,10 +53,10 @@ public class RarUnpacker {
             LocalFolderExtractor.extract(
                     rarArchive,
                     destinationDirectory,
-                    password,
                     totalSize,
                     progressCallback,
-                    conflictResolutionProvider);
+                    conflictResolutionProvider,
+                    relayPasswordProvider);
 
             return destinationDirectory;
         }

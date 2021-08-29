@@ -6,7 +6,6 @@ import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.decompression.*;
 
 import java.io.File;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.requireNonNull;
@@ -15,12 +14,15 @@ public class DecompressionQueueItem extends Task<Void> {
     private final File archive;
 
     private final FileConflictResolutionProvider fileConflictResolutionProvider;
+    private final PasswordProvider passwordProvider;
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
     public DecompressionQueueItem(File archive,
-                                  FileConflictResolutionProvider fileConflictResolutionProvider) {
+                                  FileConflictResolutionProvider fileConflictResolutionProvider,
+                                  PasswordProvider passwordProvider) {
         this.archive = requireNonNull(archive);
         this.fileConflictResolutionProvider = requireNonNull(fileConflictResolutionProvider);
+        this.passwordProvider = requireNonNull(passwordProvider);
     }
 
     @Override
@@ -48,7 +50,8 @@ public class DecompressionQueueItem extends Task<Void> {
             RarUnpacker unpacker = new RarUnpacker(
                     archive,
                     new ThrottledWorkerStatus(workerStatus),
-                    fileConflictResolutionProvider);
+                    fileConflictResolutionProvider,
+                    passwordProvider);
 
             File destinationDirectory = unpacker.unpack();
 
@@ -63,6 +66,7 @@ public class DecompressionQueueItem extends Task<Void> {
             updateMessage("Canceled");
         }
         catch (Exception e) {
+            updateMessage("ERROR");
             e.printStackTrace();
 
             Platform.runLater(() -> {

@@ -18,5 +18,6 @@ module pl.marcinchwedczuk.iunrar.gui {
     opens pl.marcinchwedczuk.iunrar.gui.aboutdialog;
     opens pl.marcinchwedczuk.iunrar.gui.conflictdialog;
     opens pl.marcinchwedczuk.iunrar.gui.settingsdialog;
+    opens pl.marcinchwedczuk.iunrar.gui.passworddialog;
     opens pl.marcinchwedczuk.iunrar.gui.testfilechooser;
 }

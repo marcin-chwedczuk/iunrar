@@ -18,6 +18,7 @@ import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionPro
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.NoSelectionModel;
+import pl.marcinchwedczuk.iunrar.gui.passworddialog.GuiPasswordProvider;
 import pl.marcinchwedczuk.iunrar.gui.settingsdialog.SettingsDialog;
 
 import java.io.File;
@@ -92,7 +93,8 @@ public class MainWindow implements Initializable {
         if (archive != null) {
             DecompressionQueueItem item = new DecompressionQueueItem(
                     archive,
-                    new GuiFileConflictResolutionProvider());
+                    new GuiFileConflictResolutionProvider(),
+                    new GuiPasswordProvider(thisWindow()));
 
             decompressionQueue.getItems().add(item);
             decompressionExecutor.execute(item);

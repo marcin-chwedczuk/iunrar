@@ -3,6 +3,7 @@ package pl.marcinchwedczuk.iunrar.gui.decompression;
 import com.github.junrar.Archive;
 import com.github.junrar.ContentDescription;
 import com.github.junrar.UnrarCallback;
+import com.github.junrar.exception.CorruptHeaderException;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolution.OVERWRITE;
@@ -151,35 +153,32 @@ class LocalFolderExtractor {
 
     public static List<File> extract(final File rar,
                                      final File destinationFolder,
-                                     final String password,
                                      long totalSize,
                                      final WorkerStatus progressCallback,
-                                     FileConflictResolutionProvider conflictResolutionProvider)
+                                     FileConflictResolutionProvider conflictResolutionProvider,
+                                     PasswordProvider passwordProvider)
             throws RarException, IOException, InterruptedException {
         validateRarPath(rar);
         validateDestinationPath(destinationFolder);
 
-        final Archive archive = createArchiveOrThrowException(rar, password, null);
+        Archive archive = createArchiveOrThrowException(rar, passwordProvider);
+
         LocalFolderExtractor lfe = new LocalFolderExtractor(
                 rar, totalSize, destinationFolder, progressCallback, conflictResolutionProvider);
         return extractArchiveTo(archive, lfe);
     }
 
-    public static List<ContentDescription> getContentsDescription(File rar, String password)
+    public static List<ContentDescription> getContentsDescription(File rar, PasswordProvider passwordProvider)
             throws RarException, IOException
     {
         validateRarPath(rar);
-        final Archive arch = createArchiveOrThrowException(rar, password, null);
+        final Archive arch = createArchiveOrThrowException(rar, passwordProvider);
         return getContentsDescriptionFromArchive(arch);
     }
 
     private static List<ContentDescription> getContentsDescriptionFromArchive(final Archive arch) throws RarException, IOException {
         final List<ContentDescription> contents = new ArrayList<>();
         try {
-            if (arch.isEncrypted()) {
-                logger.warn("archive is encrypted cannot extract");
-                return new ArrayList<>();
-            }
             for (final FileHeader fileHeader : arch) {
                 contents.add(new ContentDescription(fileHeader.getFileName(), fileHeader.getUnpSize()));
             }
@@ -189,11 +188,25 @@ class LocalFolderExtractor {
         return contents;
     }
 
-    private static Archive createArchiveOrThrowException(File file,
-                                                         String password,
-                                                         UnrarCallback progressCallback) throws RarException, IOException {
+    public static Archive createArchiveOrThrowException(File file,
+                                                         PasswordProvider passwordProvider) throws RarException, IOException {
         try {
-            return new Archive(file, progressCallback, password);
+            Archive archive = new Archive(file, null, null);
+            if (archive.isPasswordProtected()) {
+                while (true) {
+                    Optional<String> password = passwordProvider.askForPassword(file);
+                    if (password.isEmpty()) throw new StopCompressionException("No password was given.");
+                    try {
+                        archive = new Archive(file, null, password.get());
+                        // Force library to read headers and throw exception
+                        archive.isEncrypted();
+                        break;
+                    } catch(CorruptHeaderException e) {
+                        // Either archive is corrupted or password is wrong
+                    }
+                }
+            }
+            return archive;
         } catch (final RarException | IOException e) {
             logger.error("Error while creating archive", e);
             throw e;
