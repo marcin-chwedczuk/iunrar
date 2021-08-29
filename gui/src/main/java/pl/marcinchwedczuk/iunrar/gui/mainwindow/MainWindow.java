@@ -18,6 +18,7 @@ import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionPro
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.NoSelectionModel;
+import pl.marcinchwedczuk.iunrar.gui.settingsdialog.SettingsDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class MainWindow implements Initializable {
             decompressionExecutor.execute(item);
         }
 
-        System.out.println(new AppPreferences().getOpenFolderAfterDecompression());
+        System.out.println(new AppPreferences().getOpenFolderAfterUnpacking());
         new AppPreferences()
                 .setOpenFolderAfterDecompression(true)
                 .save();
@@ -111,6 +112,11 @@ public class MainWindow implements Initializable {
     @FXML
     private void testShowConflict() {
         ConflictDialog.showAndWaitForAnswer("archive.rar", "foo", 10, 20);
+    }
+
+    @FXML
+    private void guiOpenSettingsDialog() {
+        SettingsDialog.show(thisWindow());
     }
 
     @FXML

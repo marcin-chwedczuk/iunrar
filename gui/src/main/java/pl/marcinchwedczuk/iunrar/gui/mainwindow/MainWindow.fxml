@@ -26,6 +26,7 @@
                             <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                          </accelerator>
                         </MenuItem>
+                        <MenuItem onAction="#guiOpenSettingsDialog" text="_Settings..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="closeMenuItem" onAction="#guiClose" text="E_xit" />
                     </items>

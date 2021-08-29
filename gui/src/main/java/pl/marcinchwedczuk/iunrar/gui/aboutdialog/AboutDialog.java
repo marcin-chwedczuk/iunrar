@@ -8,6 +8,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import pl.marcinchwedczuk.iunrar.gui.App;
 
@@ -23,6 +24,7 @@ public class AboutDialog {
             Stage childWindow = new Stage();
             childWindow.initOwner(owner);
             childWindow.initModality(Modality.WINDOW_MODAL);
+            childWindow.initStyle(StageStyle.UTILITY);
             childWindow.setTitle("About...");
             childWindow.setScene(new Scene(loader.load()));
             childWindow.setResizable(false);
