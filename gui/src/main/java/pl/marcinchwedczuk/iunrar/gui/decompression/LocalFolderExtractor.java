@@ -28,9 +28,6 @@ class LocalFolderExtractor {
 
     private final FileConflictResolutionProvider conflictResolutionProvider;
 
-    private long extracted = 0;
-    private double lastProgress = -100;
-
     LocalFolderExtractor(File archiveFile,
                          long totalSize,
                          File destination,
@@ -41,19 +38,6 @@ class LocalFolderExtractor {
         this.folderDestination = destination;
         this.workerStatus = workerStatus;
         this.conflictResolutionProvider = conflictResolutionProvider;
-    }
-
-    private void updateProgress(String path) {
-        extracted++;
-
-        double currentProgress = 100.0 * extracted / totalSize;
-        if (Math.abs(currentProgress - lastProgress) < 1.0) {
-            return;
-        }
-
-        workerStatus.updateMessage("Extracting " + path + "...");
-        workerStatus.updateProgress(currentProgress);
-        lastProgress = currentProgress;
     }
 
     File createDirectory(final FileHeader fh) {
@@ -77,7 +61,6 @@ class LocalFolderExtractor {
             throw new IllegalStateException(e);
         }
 
-        updateProgress(fileName);
         return f;
     }
 
@@ -138,7 +121,6 @@ class LocalFolderExtractor {
                 break;
         }
 
-        updateProgress(name);
         return f;
     }
 
