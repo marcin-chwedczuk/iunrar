@@ -3,10 +3,7 @@ package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
-import pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolutionProvider;
-import pl.marcinchwedczuk.iunrar.gui.decompression.RarUnpacker;
-import pl.marcinchwedczuk.iunrar.gui.decompression.StopCompressionException;
-import pl.marcinchwedczuk.iunrar.gui.decompression.WorkerStatus;
+import pl.marcinchwedczuk.iunrar.gui.decompression.*;
 
 import java.io.File;
 import java.util.Objects;
@@ -32,15 +29,12 @@ public class DecompressionQueueItem extends Task<Void> {
             DecompressionQueueItem outer = this;
             WorkerStatus workerStatus = new WorkerStatus() {
                 @Override
-                public void updateProgress(String message) {
+                public void updateMessage(String message) {
                     outer.updateMessage(message);
                 }
 
                 @Override
-                public void updateProgress(String message, double progress) {
-                    outer.updateMessage(message);
-                    outer.updateProgress(progress, 100.0);
-                }
+                public void updateProgress(double progress) { outer.updateProgress(progress, 100.0); }
 
                 @Override
                 public boolean shouldStop() {
@@ -55,7 +49,7 @@ public class DecompressionQueueItem extends Task<Void> {
 
             RarUnpacker unpacker = new RarUnpacker(
                     archive,
-                    workerStatus,
+                    new ThrottledWorkerStatus(workerStatus, 0.0),
                     fileConflictResolutionProvider);
 
             File destinationDirectory = unpacker.unpack();

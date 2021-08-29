@@ -14,26 +14,30 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolution.OVERWRITE;
 
 class LocalFolderExtractor {
     private final File archiveFile;
-    private final long totalFiles;
     private final File folderDestination;
+
+    private final long totalSize;
+    private final AtomicLong unpackedSize = new AtomicLong(0);
     private final WorkerStatus workerStatus;
+
     private final FileConflictResolutionProvider conflictResolutionProvider;
 
     private long extracted = 0;
     private double lastProgress = -100;
 
     LocalFolderExtractor(File archiveFile,
-                         long totalFiles,
+                         long totalSize,
                          File destination,
                          WorkerStatus workerStatus,
                          FileConflictResolutionProvider conflictResolutionProvider) {
         this.archiveFile = archiveFile;
-        this.totalFiles = totalFiles;
+        this.totalSize = totalSize;
         this.folderDestination = destination;
         this.workerStatus = workerStatus;
         this.conflictResolutionProvider = conflictResolutionProvider;
@@ -42,12 +46,13 @@ class LocalFolderExtractor {
     private void updateProgress(String path) {
         extracted++;
 
-        double currentProgress = 100.0 * extracted / totalFiles;
+        double currentProgress = 100.0 * extracted / totalSize;
         if (Math.abs(currentProgress - lastProgress) < 1.0) {
             return;
         }
 
-        workerStatus.updateProgress("Extracting " + path + "...", currentProgress);
+        workerStatus.updateMessage("Extracting " + path + "...");
+        workerStatus.updateProgress(currentProgress);
         lastProgress = currentProgress;
     }
 
@@ -83,9 +88,13 @@ class LocalFolderExtractor {
         final File f = createFile(fileHeader, folderDestination);
         if (f != null) {
             try (OutputStream stream =
-                         new PauseCancelOutputStreamDecorator(
-                                 workerStatus,
-                                 new FileOutputStream(f)))
+                    new ProgressReportingOutputStreamDecorator(
+                            workerStatus,
+                            totalSize,
+                            unpackedSize,
+                            new PauseCancelOutputStreamDecorator(
+                                     workerStatus,
+                                     new FileOutputStream(f))))
             {
                 arch.extractFile(fileHeader, stream);
             }
@@ -159,7 +168,7 @@ class LocalFolderExtractor {
     public static List<File> extract(final File rar,
                                      final File destinationFolder,
                                      final String password,
-                                     long totalFiles,
+                                     long totalSize,
                                      final WorkerStatus progressCallback,
                                      FileConflictResolutionProvider conflictResolutionProvider)
             throws RarException, IOException, InterruptedException {
@@ -168,7 +177,7 @@ class LocalFolderExtractor {
 
         final Archive archive = createArchiveOrThrowException(rar, password, null);
         LocalFolderExtractor lfe = new LocalFolderExtractor(
-                rar, totalFiles, destinationFolder, progressCallback, conflictResolutionProvider);
+                rar, totalSize, destinationFolder, progressCallback, conflictResolutionProvider);
         return extractArchiveTo(archive, lfe);
     }
 

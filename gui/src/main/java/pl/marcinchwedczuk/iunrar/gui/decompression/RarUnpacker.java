@@ -30,19 +30,21 @@ public class RarUnpacker {
             File destinationDirectory = new File(
                     rarArchive.getAbsolutePath().replaceAll("\\.rar$", ""));
 
-            progressCallback.updateProgress("Creating output directory...", 0.0);
+            progressCallback.updateMessage("Creating output directory...");
             if (!destinationDirectory.exists() && !destinationDirectory.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: '" + destinationDirectory + "'.");
             }
 
-            progressCallback.updateProgress("Getting list of files...", 0.0);
-            long totalFiles = LocalFolderExtractor.getContentsDescription(rarArchive, password).size();
+            progressCallback.updateMessage("Computing total size...");
+            long totalSize = LocalFolderExtractor.getContentsDescription(rarArchive, password).stream()
+                    .mapToLong(cd -> cd.size)
+                    .sum();
 
             LocalFolderExtractor.extract(
                     rarArchive,
                     destinationDirectory,
                     password,
-                    totalFiles,
+                    totalSize,
                     progressCallback,
                     conflictResolutionProvider);
 
