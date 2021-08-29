@@ -1,13 +1,19 @@
 package pl.marcinchwedczuk.iunrar.gui.decompression;
 
 import com.github.junrar.Archive;
+import com.github.junrar.ContentDescription;
+import com.github.junrar.UnrarCallback;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolution.OVERWRITE;
 
@@ -15,7 +21,7 @@ class LocalFolderExtractor {
     private final File archiveFile;
     private final long totalFiles;
     private final File folderDestination;
-    private final UnpackProgressCallback progressCallback;
+    private final WorkerStatus workerStatus;
     private final FileConflictResolutionProvider conflictResolutionProvider;
 
     private long extracted = 0;
@@ -24,12 +30,12 @@ class LocalFolderExtractor {
     LocalFolderExtractor(File archiveFile,
                          long totalFiles,
                          File destination,
-                         UnpackProgressCallback progressCallback,
+                         WorkerStatus workerStatus,
                          FileConflictResolutionProvider conflictResolutionProvider) {
         this.archiveFile = archiveFile;
         this.totalFiles = totalFiles;
         this.folderDestination = destination;
-        this.progressCallback = progressCallback;
+        this.workerStatus = workerStatus;
         this.conflictResolutionProvider = conflictResolutionProvider;
     }
 
@@ -41,7 +47,7 @@ class LocalFolderExtractor {
             return;
         }
 
-        progressCallback.update("Extracting " + path + "...", currentProgress);
+        workerStatus.updateProgress("Extracting " + path + "...", currentProgress);
         lastProgress = currentProgress;
     }
 
@@ -76,7 +82,11 @@ class LocalFolderExtractor {
     ) throws RarException, IOException {
         final File f = createFile(fileHeader, folderDestination);
         if (f != null) {
-            try (OutputStream stream = new FileOutputStream(f)) {
+            try (OutputStream stream =
+                         new PauseCancelOutputStreamDecorator(
+                                 workerStatus,
+                                 new FileOutputStream(f)))
+            {
                 arch.extractFile(fileHeader, stream);
             }
         }
@@ -141,6 +151,116 @@ class LocalFolderExtractor {
             return f;
         } else {
             return null;
+        }
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(LocalFolderExtractor.class);
+
+    public static List<File> extract(final File rar,
+                                     final File destinationFolder,
+                                     final String password,
+                                     long totalFiles,
+                                     final WorkerStatus progressCallback,
+                                     FileConflictResolutionProvider conflictResolutionProvider)
+            throws RarException, IOException, InterruptedException {
+        validateRarPath(rar);
+        validateDestinationPath(destinationFolder);
+
+        final Archive archive = createArchiveOrThrowException(rar, password, null);
+        LocalFolderExtractor lfe = new LocalFolderExtractor(
+                rar, totalFiles, destinationFolder, progressCallback, conflictResolutionProvider);
+        return extractArchiveTo(archive, lfe);
+    }
+
+    public static List<ContentDescription> getContentsDescription(File rar, String password)
+            throws RarException, IOException
+    {
+        validateRarPath(rar);
+        final Archive arch = createArchiveOrThrowException(rar, password, null);
+        return getContentsDescriptionFromArchive(arch);
+    }
+
+    private static List<ContentDescription> getContentsDescriptionFromArchive(final Archive arch) throws RarException, IOException {
+        final List<ContentDescription> contents = new ArrayList<>();
+        try {
+            if (arch.isEncrypted()) {
+                logger.warn("archive is encrypted cannot extract");
+                return new ArrayList<>();
+            }
+            for (final FileHeader fileHeader : arch) {
+                contents.add(new ContentDescription(fileHeader.getFileName(), fileHeader.getUnpSize()));
+            }
+        } finally {
+            arch.close();
+        }
+        return contents;
+    }
+
+    private static Archive createArchiveOrThrowException(File file,
+                                                         String password,
+                                                         UnrarCallback progressCallback) throws RarException, IOException {
+        try {
+            return new Archive(file, progressCallback, password);
+        } catch (final RarException | IOException e) {
+            logger.error("Error while creating archive", e);
+            throw e;
+        }
+    }
+
+    private static void validateDestinationPath(final File destinationFolder) {
+        if (destinationFolder == null) {
+            throw new IllegalArgumentException("archive and destination must me set");
+        }
+        if (!destinationFolder.exists() || !destinationFolder.isDirectory()) {
+            throw new IllegalArgumentException("the destination must exist and point to a directory: " + destinationFolder);
+        }
+    }
+
+    private static void validateRarPath(final File rar) {
+        if (rar == null) {
+            throw new IllegalArgumentException("archive and destination must me set");
+        }
+        if (!rar.exists()) {
+            throw new IllegalArgumentException("the archive does not exit: " + rar);
+        }
+        if (!rar.isFile()) {
+            throw new IllegalArgumentException("First argument should be a file but was " + rar.getAbsolutePath());
+        }
+    }
+
+    private static List<File> extractArchiveTo(final Archive arch, final LocalFolderExtractor destination) throws IOException, RarException {
+        final List<File> extractedFiles = new ArrayList<>();
+        try {
+            for (final FileHeader fh : arch) {
+                try { Thread.sleep(3000); } catch (InterruptedException e) { }
+                try {
+                    final File file = tryToExtract(destination, arch, fh);
+                    if (file != null) {
+                        extractedFiles.add(file);
+                    }
+                } catch (final IOException | RarException e) {
+                    logger.error("error extracting the file", e);
+                    throw e;
+                }
+            }
+        } finally {
+            arch.close();
+        }
+        return extractedFiles;
+    }
+
+    private static File tryToExtract(
+            final LocalFolderExtractor destination,
+            final Archive arch,
+            final FileHeader fileHeader
+    ) throws IOException, RarException {
+        final String fileNameString = fileHeader.getFileName();
+
+        logger.info("extracting: " + fileNameString);
+        if (fileHeader.isDirectory()) {
+            return destination.createDirectory(fileHeader);
+        } else {
+            return destination.extract(arch, fileHeader);
         }
     }
 }

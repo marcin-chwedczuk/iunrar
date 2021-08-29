@@ -5,6 +5,8 @@ import javafx.concurrent.Task;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolutionProvider;
 import pl.marcinchwedczuk.iunrar.gui.decompression.RarUnpacker;
+import pl.marcinchwedczuk.iunrar.gui.decompression.StopCompressionException;
+import pl.marcinchwedczuk.iunrar.gui.decompression.WorkerStatus;
 
 import java.io.File;
 import java.util.Objects;
@@ -27,23 +29,48 @@ public class DecompressionQueueItem extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         try {
+            DecompressionQueueItem outer = this;
+            WorkerStatus workerStatus = new WorkerStatus() {
+                @Override
+                public void updateProgress(String message) {
+                    outer.updateMessage(message);
+                }
+
+                @Override
+                public void updateProgress(String message, double progress) {
+                    outer.updateMessage(message);
+                    outer.updateProgress(progress, 100.0);
+                }
+
+                @Override
+                public boolean shouldStop() {
+                    return outer.isCancelled();
+                }
+
+                @Override
+                public boolean shouldPause() {
+                    return outer.isPaused();
+                }
+            };
 
             RarUnpacker unpacker = new RarUnpacker(
                     archive,
-                    (message, progress) -> {
-
-                        updateMessage(message);
-                        updateProgress(progress, 100.0);
-                    },
+                    workerStatus,
                     fileConflictResolutionProvider);
 
             File destinationDirectory = unpacker.unpack();
 
             Runtime.getRuntime().exec("open .", new String[]{ }, destinationDirectory);
 
-            updateMessage("Done.");
-            updateProgress(100.0, 100.0);
-        } catch (Exception e) {
+            if (!isCancelled()) {
+                updateMessage("Done");
+                updateProgress(100.0, 100.0);
+            }
+        }
+        catch (StopCompressionException e) {
+            updateMessage("Canceled");
+        }
+        catch (Exception e) {
             e.printStackTrace();
 
             Platform.runLater(() -> {

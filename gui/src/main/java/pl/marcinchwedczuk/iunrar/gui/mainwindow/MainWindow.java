@@ -72,7 +72,9 @@ public class MainWindow implements Initializable {
         }
 
         System.out.println(new AppPreferences().getOpenFolderAfterDecompression());
-        new AppPreferences().setOpenFolderAfterDecompression(false);
+        new AppPreferences()
+                .setOpenFolderAfterDecompression(true)
+                .save();
 
         // Start receiving events
         boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {

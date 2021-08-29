@@ -9,36 +9,36 @@ import static java.util.Objects.requireNonNull;
 
 public class RarUnpacker {
     private final File rarArchive;
-    private final UnpackProgressCallback progressCallback;
+    private final WorkerStatus progressCallback;
     private final FileConflictResolutionProvider conflictResolutionProvider;
 
     public RarUnpacker(File rarArchive,
-                       UnpackProgressCallback progressCallback,
+                       WorkerStatus progressCallback,
                        FileConflictResolutionProvider conflictResolutionProvider) {
         this.rarArchive = requireNonNull(rarArchive);
         this.progressCallback = requireNonNull(progressCallback);
         this.conflictResolutionProvider = conflictResolutionProvider;
     }
 
-    public File unpack() {
+    public File unpack() throws InterruptedException {
         return unpack(null);
     }
 
-    private File unpack(String password) {
+    private File unpack(String password) throws InterruptedException {
         try {
             // Remove rar extension
             File destinationDirectory = new File(
                     rarArchive.getAbsolutePath().replaceAll("\\.rar$", ""));
 
-            progressCallback.update("Creating output directory...", 0.0);
+            progressCallback.updateProgress("Creating output directory...", 0.0);
             if (!destinationDirectory.exists() && !destinationDirectory.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: '" + destinationDirectory + "'.");
             }
 
-            progressCallback.update("Getting list of files...", 0.0);
-            long totalFiles = LocalJunrar.getContentsDescription(rarArchive, password).size();
+            progressCallback.updateProgress("Getting list of files...", 0.0);
+            long totalFiles = LocalFolderExtractor.getContentsDescription(rarArchive, password).size();
 
-            LocalJunrar.extract(
+            LocalFolderExtractor.extract(
                     rarArchive,
                     destinationDirectory,
                     password,
@@ -47,7 +47,11 @@ public class RarUnpacker {
                     conflictResolutionProvider);
 
             return destinationDirectory;
-        } catch (RarException | IOException e) {
+        }
+        catch (RarException | IOException e) {
+            if (e.getCause() instanceof StopCompressionException) {
+                throw (StopCompressionException)e.getCause();
+            }
             throw new RuntimeException("Error while unpacking the archive!", e);
         }
     }
