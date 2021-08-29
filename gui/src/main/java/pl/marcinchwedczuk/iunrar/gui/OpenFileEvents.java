@@ -17,6 +17,11 @@ public class OpenFileEvents {
      * Must be called before JavaFX is initialized.
      */
     public void saveExistingEvents() {
+        if(!Desktop.isDesktopSupported()) {
+            // Running in headless mode e.g. on CI
+            return;
+        }
+
         try {
             Desktop.getDesktop().setOpenFileHandler(event -> {
                 if (disablePreJavaFxHandler) {
@@ -34,6 +39,11 @@ public class OpenFileEvents {
     }
 
     public boolean subscribe(Consumer<File> handler) {
+        if(!Desktop.isDesktopSupported()) {
+            // Running in headless mode e.g. on CI
+            return "true".equals(System.getProperty("java.awt.headless"));
+        }
+
         if (!java.awt.Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_FILE)) {
             return false;
         }

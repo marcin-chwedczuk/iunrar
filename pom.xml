@@ -212,6 +212,9 @@
                         <exclude>**/*IT</exclude>
                     </excludes>
                     <argLine>${extra-jvm-options-when-running-tests}</argLine>
+                    <systemPropertyVariables>
+                        <java.awt.headless>true</java.awt.headless>
+                    </systemPropertyVariables>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -240,6 +243,9 @@
                                 <include>**/*IT</include>
                             </includes>
                             <argLine>${extra-jvm-options-when-running-tests}</argLine>
+                            <systemPropertyVariables>
+                                <java.awt.headless>true</java.awt.headless>
+                            </systemPropertyVariables>
                         </configuration>
                     </execution>
                 </executions>

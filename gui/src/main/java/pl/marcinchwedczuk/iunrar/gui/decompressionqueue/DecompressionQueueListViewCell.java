@@ -103,7 +103,7 @@ public class DecompressionQueueListViewCell
             pauseButton.setText("Resume");
         }
         else {
-            pauseButton.setText("Pause");
+            pauseButton.setText("Pausing");
         }
     }
 }
