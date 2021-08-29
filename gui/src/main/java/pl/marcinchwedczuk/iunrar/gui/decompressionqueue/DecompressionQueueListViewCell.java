@@ -31,6 +31,9 @@ public class DecompressionQueueListViewCell
     private GridPane root;
 
     @FXML
+    private Label archiveName;
+
+    @FXML
     private ProgressBar progress;
 
     @FXML
@@ -53,6 +56,7 @@ public class DecompressionQueueListViewCell
 
         if (empty) {
             setGraphic(null);
+            archiveName.setText("");
             message.textProperty().unbind();
             progress.progressProperty().unbind();
             stopButton.disableProperty().unbind();
@@ -61,6 +65,7 @@ public class DecompressionQueueListViewCell
         }
         else {
             setGraphic(root);
+            archiveName.setText(item.archiveName());
             message.textProperty().bind(item.messageProperty());
             progress.progressProperty().bind(item.progressProperty());
             stopButton.disableProperty().bind(Bindings.createBooleanBinding(

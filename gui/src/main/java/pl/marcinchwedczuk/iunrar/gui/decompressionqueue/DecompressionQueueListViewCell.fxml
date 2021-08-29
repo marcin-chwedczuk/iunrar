@@ -10,9 +10,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
 
 <GridPane fx:id="root" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell">
    <rowConstraints>
+      <RowConstraints />
       <RowConstraints maxHeight="32.0" minHeight="32.0" prefHeight="32.0" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" />
       <RowConstraints minHeight="10.0" />
@@ -21,9 +23,9 @@
       <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
    </columnConstraints>
    <children>
-      <ProgressBar fx:id="progress" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-      <Label fx:id="message" text="Unpacking 7 out of 1023 files..." GridPane.rowIndex="1" />
-      <HBox alignment="CENTER_RIGHT" spacing="8.0" GridPane.rowIndex="2">
+      <ProgressBar fx:id="progress" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+      <Label fx:id="message" text="Unpacking 7 out of 1023 files..." GridPane.rowIndex="2" />
+      <HBox alignment="CENTER_RIGHT" spacing="8.0" GridPane.rowIndex="3">
          <children>
             <Button fx:id="stopButton" mnemonicParsing="false" onAction="#guiStop" text="Stop">
                <graphic>
@@ -42,6 +44,24 @@
                   </ImageView>
                </graphic></Button>
          </children>
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+      </HBox>
+      <HBox spacing="4.0">
+         <children>
+            <Label fx:id="archiveName" text="archive.rar">
+               <font>
+                  <Font name="Monospaced Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <GridPane.margin>
+            <Insets />
+         </GridPane.margin>
          <padding>
             <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
          </padding>

@@ -96,6 +96,10 @@ public class DecompressionQueueItem extends Task<Void> {
         }
     }
 
+    public String archiveName() {
+        return archive.getName();
+    }
+
     public boolean isPaused() { return paused.get(); }
     public void setPaused(boolean paused) { this.paused.set(paused); }
 }

@@ -18,6 +18,7 @@ public class ThrottledWorkerStatus implements WorkerStatus {
         long currentTime = System.currentTimeMillis();
         if (messageLevel == IMPORTANT || Math.abs(messageUpdateLastTime - currentTime) > 1000) {
             inner.updateMessage(messageLevel, message);
+            messageUpdateLastTime = currentTime;
         }
     }
 
