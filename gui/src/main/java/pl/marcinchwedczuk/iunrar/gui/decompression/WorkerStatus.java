@@ -1,7 +1,7 @@
 package pl.marcinchwedczuk.iunrar.gui.decompression;
 
 public interface WorkerStatus {
-    void updateMessage(String message);
+    void updateMessage(MessageLevel level, String message);
     void updateProgress(double progress);
 
     boolean shouldStop();

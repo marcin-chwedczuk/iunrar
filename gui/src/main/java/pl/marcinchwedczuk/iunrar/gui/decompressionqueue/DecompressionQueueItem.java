@@ -29,9 +29,7 @@ public class DecompressionQueueItem extends Task<Void> {
             DecompressionQueueItem outer = this;
             WorkerStatus workerStatus = new WorkerStatus() {
                 @Override
-                public void updateMessage(String message) {
-                    outer.updateMessage(message);
-                }
+                public void updateMessage(MessageLevel messageLevel, String message) { outer.updateMessage(message); }
 
                 @Override
                 public void updateProgress(double progress) { outer.updateProgress(progress, 100.0); }
@@ -49,7 +47,7 @@ public class DecompressionQueueItem extends Task<Void> {
 
             RarUnpacker unpacker = new RarUnpacker(
                     archive,
-                    new ThrottledWorkerStatus(workerStatus, 0.0),
+                    new ThrottledWorkerStatus(workerStatus),
                     fileConflictResolutionProvider);
 
             File destinationDirectory = unpacker.unpack();

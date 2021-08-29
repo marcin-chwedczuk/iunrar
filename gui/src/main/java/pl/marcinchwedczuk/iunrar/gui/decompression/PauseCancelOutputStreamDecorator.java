@@ -57,12 +57,15 @@ public class PauseCancelOutputStreamDecorator extends OutputStream {
         }
         bytesWritten = 0;
 
-        while (workerStatus.shouldPause() && !workerStatus.shouldStop()) {
-            try {
-                workerStatus.updateMessage("Paused");
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // Ignore
+        if (workerStatus.shouldPause()) {
+            workerStatus.updateMessage(MessageLevel.IMPORTANT, "Paused");
+
+            while (workerStatus.shouldPause() && !workerStatus.shouldStop()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // Ignore
+                }
             }
         }
 

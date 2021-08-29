@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static pl.marcinchwedczuk.iunrar.gui.decompression.FileConflictResolution.OVERWRITE;
+import static pl.marcinchwedczuk.iunrar.gui.decompression.MessageLevel.UPDATE;
 
 class LocalFolderExtractor {
     private final File archiveFile;
@@ -68,6 +69,7 @@ class LocalFolderExtractor {
         final Archive arch,
         final FileHeader fileHeader
     ) throws RarException, IOException {
+        workerStatus.updateMessage(UPDATE, "Extracting " + fileHeader.getFileName() + "...");
         final File f = createFile(fileHeader, folderDestination);
         if (f != null) {
             try (OutputStream stream =
@@ -223,7 +225,7 @@ class LocalFolderExtractor {
         final List<File> extractedFiles = new ArrayList<>();
         try {
             for (final FileHeader fh : arch) {
-                try { Thread.sleep(3000); } catch (InterruptedException e) { }
+                try { Thread.sleep(1500); } catch (InterruptedException e) { }
                 try {
                     final File file = tryToExtract(destination, arch, fh);
                     if (file != null) {

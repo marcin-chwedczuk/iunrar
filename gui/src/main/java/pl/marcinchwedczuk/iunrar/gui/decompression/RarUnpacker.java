@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static java.util.Objects.requireNonNull;
+import static pl.marcinchwedczuk.iunrar.gui.decompression.MessageLevel.IMPORTANT;
 
 public class RarUnpacker {
     private final File rarArchive;
@@ -30,16 +31,17 @@ public class RarUnpacker {
             File destinationDirectory = new File(
                     rarArchive.getAbsolutePath().replaceAll("\\.rar$", ""));
 
-            progressCallback.updateMessage("Creating output directory...");
+            progressCallback.updateMessage(IMPORTANT, "Creating output directory...");
             if (!destinationDirectory.exists() && !destinationDirectory.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: '" + destinationDirectory + "'.");
             }
 
-            progressCallback.updateMessage("Computing total size...");
+            progressCallback.updateMessage(IMPORTANT, "Computing total size...");
             long totalSize = LocalFolderExtractor.getContentsDescription(rarArchive, password).stream()
                     .mapToLong(cd -> cd.size)
                     .sum();
 
+            progressCallback.updateMessage(IMPORTANT, "Extracting...");
             LocalFolderExtractor.extract(
                     rarArchive,
                     destinationDirectory,
