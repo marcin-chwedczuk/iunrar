@@ -43,7 +43,7 @@ class LocalFolderExtractor {
     File createDirectory(final FileHeader fh) {
         String fileName = null;
         if (fh.isDirectory()) {
-            fileName = FileNameUtil.getFileName(fh);
+            fileName = fh.getFileName();
         }
 
         if (fileName == null) {
@@ -87,7 +87,7 @@ class LocalFolderExtractor {
 
     private File createFile(FileHeader fh,
                             File destination) throws IOException {
-        String name = FileNameUtil.getFileName(fh);
+        String name = fh.getFileName();
         File f = new File(destination, name);
         String dirCanonPath = f.getCanonicalPath();
         if (!dirCanonPath.startsWith(destination.getCanonicalPath())) {
@@ -134,11 +134,11 @@ class LocalFolderExtractor {
             for (int i = 0; i < dirs.length - 1; i++) {
                 path = path + File.separator + dirs[i];
                 File dir = new File(destination, path);
-                dir.mkdir();
+                dir.mkdir(); // ignore result
             }
             path = path + File.separator + dirs[dirs.length - 1];
             final File f = new File(destination, path);
-            f.createNewFile();
+            f.createNewFile(); // ignore result
             return f;
         } else {
             return null;
