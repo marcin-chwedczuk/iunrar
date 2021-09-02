@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import pl.marcinchwedczuk.iunrar.gui.AppPreferences;
+import pl.marcinchwedczuk.iunrar.gui.OpenFileEventTime;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.decompression.*;
 
@@ -18,6 +19,7 @@ import static java.util.Objects.requireNonNull;
 
 public class UnpackingQueueItem extends Task<Void> {
     private final File archive;
+    private final OpenFileEventTime eventTime;
 
     private final FileConflictResolutionProvider fileConflictResolutionProvider;
     private final PasswordProvider passwordProvider;
@@ -31,9 +33,11 @@ public class UnpackingQueueItem extends Task<Void> {
     private final BooleanBinding canCancelProperty;
 
     public UnpackingQueueItem(File archive,
+                              OpenFileEventTime eventTime,
                               FileConflictResolutionProvider fileConflictResolutionProvider,
                               PasswordProvider passwordProvider) {
         this.archive = requireNonNull(archive);
+        this.eventTime = requireNonNull(eventTime);
         this.fileConflictResolutionProvider = requireNonNull(fileConflictResolutionProvider);
         this.passwordProvider = requireNonNull(passwordProvider);
 
@@ -116,6 +120,10 @@ public class UnpackingQueueItem extends Task<Void> {
 
     public String archiveName() {
         return archive.getName();
+    }
+
+    public boolean requestedAtAppStartup() {
+        return eventTime == OpenFileEventTime.APP_STARTUP;
     }
 
     public boolean isPaused() { return paused.get(); }

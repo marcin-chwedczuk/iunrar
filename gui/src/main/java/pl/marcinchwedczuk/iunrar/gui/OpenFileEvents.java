@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import java.awt.*;
 import java.io.File;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class OpenFileEvents {
@@ -38,7 +39,7 @@ public class OpenFileEvents {
         }
     }
 
-    public boolean subscribe(Consumer<File> handler) {
+    public boolean subscribe(BiConsumer<File, OpenFileEventTime> handler) {
         if(!Desktop.isDesktopSupported()) {
             // Running in headless mode e.g. on CI
             return "true".equals(System.getProperty("java.awt.headless"));
@@ -51,7 +52,7 @@ public class OpenFileEvents {
         Desktop.getDesktop().setOpenFileHandler(event -> {
             for(File f: event.getFiles()) {
                 Platform.runLater(() -> {
-                    handler.accept(f);
+                    handler.accept(f, OpenFileEventTime.APP_RUNNING);
                 });
             }
         });
@@ -60,7 +61,7 @@ public class OpenFileEvents {
 
         for (File f: preJavaFxEvents) {
             Platform.runLater(() -> {
-                handler.accept(f);
+                handler.accept(f, OpenFileEventTime.APP_STARTUP);
             });
         }
 

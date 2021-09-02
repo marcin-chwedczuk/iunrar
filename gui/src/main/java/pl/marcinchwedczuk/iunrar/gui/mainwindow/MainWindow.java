@@ -14,6 +14,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import pl.marcinchwedczuk.iunrar.gui.OpenFileEventTime;
 import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
@@ -27,9 +28,7 @@ import pl.marcinchwedczuk.iunrar.gui.settingsdialog.SettingsDialog;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 public class MainWindow implements Initializable {
@@ -70,6 +69,8 @@ public class MainWindow implements Initializable {
 
     private final Executor unpackingExecutor;
     private final FileChooser openArchiveFileChooser = FileChoosers.newOpenArchiveFileChooser();
+
+    private final Timer autocloseTimer = new Timer("autoclose-timer", true);
 
     public MainWindow(Executor unpackingExecutor) {
         this.unpackingExecutor = Objects.requireNonNull(unpackingExecutor);
@@ -125,8 +126,8 @@ public class MainWindow implements Initializable {
                 });
 
         // Start receiving events
-        boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {
-            startUnpacking(file);
+        boolean ok = OpenFileEvents.INSTANCE.subscribe((file, eventTime) -> {
+            startUnpacking(file, eventTime);
         });
         if (!ok) {
             UiService.errorDialog(
@@ -134,19 +135,39 @@ public class MainWindow implements Initializable {
                             "This application will exit.");
             Platform.exit();
         }
+
+        autocloseTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> checkAutoclose());
+            }
+        }, 0, 1000);
+    }
+
+    private void checkAutoclose() {
+        if (unpackingQueue.getItems().isEmpty())
+            return;
+
+        boolean canAutoclose = unpackingQueue.getItems().stream()
+                .allMatch(item -> item.requestedAtAppStartup() && !item.canCancelProperty().get());
+
+        if (canAutoclose) {
+            Platform.runLater(() -> thisWindow().close());
+        }
     }
 
     @FXML
     private void guiOpenArchive() {
         File archive = openArchiveFileChooser.showOpenDialog(thisWindow());
         if (archive != null) {
-            startUnpacking(archive);
+            startUnpacking(archive, OpenFileEventTime.APP_RUNNING);
         }
     }
 
-    private void startUnpacking(File archive) {
+    private void startUnpacking(File archive, OpenFileEventTime eventTime) {
         UnpackingQueueItem item = new UnpackingQueueItem(
                 archive,
+                eventTime,
                 new GuiFileConflictResolutionProvider(),
                 new GuiPasswordProvider(thisWindow()));
 

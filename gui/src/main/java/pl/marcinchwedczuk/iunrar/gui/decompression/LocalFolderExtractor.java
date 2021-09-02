@@ -239,7 +239,6 @@ class LocalFolderExtractor {
         final List<File> extractedFiles = new ArrayList<>();
         try {
             for (final FileHeader fh : arch) {
-                try { Thread.sleep(1500); } catch (InterruptedException e) { }
                 try {
                     final File file = tryToExtract(destination, arch, fh);
                     if (file != null) {

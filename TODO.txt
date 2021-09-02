@@ -2,4 +2,3 @@
 - Better About dialog
 - Manual tests on macOS of generated release package
 - Better GitHub readme
-- Autoclose when unpacking via double click

@@ -17,5 +17,10 @@ You need JDK 16 or newer to compile and run this application.
 ./mvnw javafx:run -pl gui
 ```
 
+To create a macOS application package:
+```
+./mvnw clean install -P mkinstaller
+```
+
 (OK it should work on JDK 11 too, but I am running all CI builds on JDK 16.)
 
