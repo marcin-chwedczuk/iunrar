@@ -130,7 +130,7 @@ class LocalFolderExtractor {
     }
 
     private File makeFile(final File destination, final String name) throws IOException {
-        final String[] dirs = name.split("\\\\");
+        final String[] dirs = name.split("/");
         String path = "";
         final int size = dirs.length;
         if (size == 1) {
