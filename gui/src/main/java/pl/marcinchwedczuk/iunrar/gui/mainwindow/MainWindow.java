@@ -1,10 +1,19 @@
 package pl.marcinchwedczuk.iunrar.gui.mainwindow;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.stage.FileChooser;
@@ -22,6 +31,7 @@ import pl.marcinchwedczuk.iunrar.gui.settingsdialog.SettingsDialog;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
@@ -55,6 +65,13 @@ public class MainWindow implements Initializable {
     @FXML
     private ListView<UnpackingQueueItem> unpackingQueue;
 
+    @FXML
+    private Button pauseButton;
+    @FXML
+    private Button resumeButton;
+    @FXML
+    private Button cancelButton;
+
     private final Executor unpackingExecutor;
     private final FileChooser openArchiveFileChooser = FileChoosers.newOpenArchiveFileChooser();
 
@@ -67,6 +84,50 @@ public class MainWindow implements Initializable {
         unpackingQueue.setSelectionModel(new NoSelectionModel<>());
         unpackingQueue.setCellFactory(UnpackingQueueListViewCell::newCell);
 
+        pauseButton.setDisable(true);
+        resumeButton.setDisable(true);
+        cancelButton.setDisable(true);
+
+        unpackingQueue.getItems()
+                .addListener((InvalidationListener) observable -> {
+                    // TODO: Can be abstracted
+                    {
+                        var canPauseProperties = unpackingQueue.getItems().stream()
+                                .map(UnpackingQueueItem::canPauseProperty)
+                                .toArray(BooleanBinding[]::new);
+
+                        BooleanBinding canPauseAnyBinding = Bindings.createBooleanBinding(
+                                () -> Arrays.stream(canPauseProperties).anyMatch(ObservableBooleanValue::get),
+                                canPauseProperties);
+
+                        pauseButton.disableProperty().unbind();
+                        pauseButton.disableProperty().bind(canPauseAnyBinding.not());
+                    }
+
+                    {
+                        var canResumeProperties = unpackingQueue.getItems().stream()
+                                .map(UnpackingQueueItem::canResumeProperty)
+                                .toArray(BooleanBinding[]::new);
+
+                        BooleanBinding canResumeAnyBinding = Bindings.createBooleanBinding(
+                                () -> Arrays.stream(canResumeProperties).anyMatch(ObservableBooleanValue::get),
+                                canResumeProperties);
+                        resumeButton.disableProperty().unbind();
+                        resumeButton.disableProperty().bind(canResumeAnyBinding.not());
+                    }
+
+                    {
+                        var canCancelProperties = unpackingQueue.getItems().stream()
+                                .map(UnpackingQueueItem::canCancelProperty)
+                                .toArray(BooleanBinding[]::new);
+                        BooleanBinding canCancelAnyBinding = Bindings.createBooleanBinding(
+                                () -> Arrays.stream(canCancelProperties).anyMatch(ObservableBooleanValue::get),
+                                canCancelProperties);
+                        cancelButton.disableProperty().unbind();
+                        cancelButton.disableProperty().bind(canCancelAnyBinding.not());
+                    }
+                });
+
         // Start receiving events
         boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {
             startUnpacking(file);
@@ -74,7 +135,7 @@ public class MainWindow implements Initializable {
         if (!ok) {
             UiService.errorDialog(
                     "Cannot subscribe to macOS open file events.\n" +
-                    "This application will exit.");
+                            "This application will exit.");
             Platform.exit();
         }
     }

@@ -157,7 +157,7 @@ class LocalFolderExtractor {
                                      final WorkerStatus progressCallback,
                                      FileConflictResolutionProvider conflictResolutionProvider,
                                      PasswordProvider passwordProvider)
-            throws RarException, IOException, InterruptedException {
+            throws RarException, IOException {
         validateRarPath(rar);
         validateDestinationPath(destinationFolder);
 

@@ -81,27 +81,17 @@ public class UnpackingQueueListViewCell
             archiveName.setText(item.archiveName());
             message.textProperty().bind(item.messageProperty());
             progress.progressProperty().bind(item.progressProperty());
-            stopButton.disableProperty().bind(Bindings.createBooleanBinding(
-                    () -> isNoLongerActive(item),
-                    item.stateProperty()));
 
-            pauseButton.disableProperty().bind(Bindings.createBooleanBinding(
-                    () -> isNoLongerActive(item),
-                    item.stateProperty()));
+            stopButton.disableProperty().bind(item.canCancelProperty().not());
+
+            pauseButton.disableProperty().bind(item.canPauseProperty().or(item.canResumeProperty()).not());
             pauseButton.textProperty().bind(Bindings.createStringBinding(
-                    () -> item.pausedProperty().get() ? "Resume" : "Pause",
-                    item.pausedProperty()));
+                    () -> item.canPauseProperty().get() ? "Pause" : "Resume",
+                    item.canPauseProperty()));
             pauseButtonImage.imageProperty().bind(Bindings.createObjectBinding(
-                    () -> item.pausedProperty().get() ? resumeImage : pauseImage,
-                    item.pausedProperty()));
+                    () -> item.canPauseProperty().get() ? pauseImage : resumeImage,
+                    item.canPauseProperty()));
         }
-    }
-
-    private boolean isNoLongerActive(UnpackingQueueItem item) {
-        var state = item.stateProperty().getValue();
-        return state == Worker.State.SUCCEEDED ||
-                state == Worker.State.FAILED ||
-                state == Worker.State.CANCELLED;
     }
 
     @FXML

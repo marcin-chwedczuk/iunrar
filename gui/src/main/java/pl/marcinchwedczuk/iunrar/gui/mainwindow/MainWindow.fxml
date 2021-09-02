@@ -42,7 +42,7 @@
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="4.0" BorderPane.alignment="CENTER">
          <children>
-            <Button minWidth="120.0" mnemonicParsing="false" onAction="#guiCancelAll" text="Cancel All">
+            <Button fx:id="cancelButton" minWidth="120.0" mnemonicParsing="false" onAction="#guiCancelAll" text="Cancel All">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -50,7 +50,7 @@
                      </image>
                   </ImageView>
                </graphic></Button>
-            <Button minWidth="120.0" mnemonicParsing="false" onAction="#guiPauseAll" text="Pause All">
+            <Button fx:id="pauseButton" minWidth="120.0" mnemonicParsing="false" onAction="#guiPauseAll" text="Pause All">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -59,7 +59,7 @@
                   </ImageView>
                </graphic>
             </Button>
-            <Button minWidth="120.0" mnemonicParsing="false" onAction="#guiResumeAll" text="Resume All">
+            <Button fx:id="resumeButton" minWidth="120.0" mnemonicParsing="false" onAction="#guiResumeAll" text="Resume All">
                <graphic>
                   <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                      <image>
