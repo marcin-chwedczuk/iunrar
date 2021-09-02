@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class GuiFileConflictResolutionProvider implements FileConflictResolutionProvider {
-    private AtomicReference<FileConflictResolution> forAllRemaining = new AtomicReference<>();
+    private final AtomicReference<FileConflictResolution> forAllRemaining = new AtomicReference<>();
 
     @Override
     public FileConflictResolution resolveConflict(File archive, File file,

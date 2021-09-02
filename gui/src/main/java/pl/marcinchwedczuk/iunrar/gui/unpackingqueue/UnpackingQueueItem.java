@@ -7,6 +7,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
+import pl.marcinchwedczuk.iunrar.gui.AppPreferences;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.decompression.*;
 
@@ -82,10 +83,17 @@ public class UnpackingQueueItem extends Task<Void> {
                     new ThrottledWorkerStatus(workerStatus),
                     fileConflictResolutionProvider,
                     passwordProvider);
-
             File destinationDirectory = unpacker.unpack();
 
-            Runtime.getRuntime().exec("open .", new String[]{ }, destinationDirectory);
+            var preferences = new AppPreferences();
+
+            if (preferences.getOpenFolderAfterUnpacking()) {
+                Runtime.getRuntime().exec("open .", new String[]{}, destinationDirectory);
+            }
+
+            if (preferences.getRemoveArchiveAfterUnpacking()) {
+                archive.delete(); // ignore result
+            }
 
             updateMessage("Done");
             updateProgressPercent(100.0);

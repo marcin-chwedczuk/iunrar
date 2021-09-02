@@ -91,7 +91,8 @@ class LocalFolderExtractor {
 
     private File createFile(FileHeader fh,
                             File destination) throws IOException {
-        String name = fh.getFileName();
+        // Replace windows path with unix one. This will break unix files with '\' in name. Don't ask...
+        String name = fh.getFileName().replace('\\', '/');
         File f = new File(destination, name);
         String dirCanonPath = f.getCanonicalPath();
         if (!dirCanonPath.startsWith(destination.getCanonicalPath())) {
@@ -110,7 +111,7 @@ class LocalFolderExtractor {
 
         switch (resolution) {
             case STOP_OPERATION:
-                throw new RuntimeException("Stopped by user!");
+                throw new StopCompressionException("Cancelled");
             case SKIP:
                 f = null;
                 break;
