@@ -1,4 +1,4 @@
-package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
+package pl.marcinchwedczuk.iunrar.gui.unpackingqueue;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

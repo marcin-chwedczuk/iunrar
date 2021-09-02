@@ -14,7 +14,7 @@ module pl.marcinchwedczuk.iunrar.gui {
 
     // Allow @FXML injection to private fields.
     opens pl.marcinchwedczuk.iunrar.gui.mainwindow;
-    opens pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
+    opens pl.marcinchwedczuk.iunrar.gui.unpackingqueue;
     opens pl.marcinchwedczuk.iunrar.gui.aboutdialog;
     opens pl.marcinchwedczuk.iunrar.gui.conflictdialog;
     opens pl.marcinchwedczuk.iunrar.gui.settingsdialog;

@@ -25,7 +25,7 @@ public class RarUnpacker {
         this.passwordProvider = requireNonNull(passwordProvider);
     }
 
-    public File unpack() throws InterruptedException {
+    public File unpack() {
         try {
             // Remove rar extension
             File destinationDirectory = new File(
@@ -60,7 +60,7 @@ public class RarUnpacker {
             if (e.getCause() instanceof StopCompressionException) {
                 throw (StopCompressionException)e.getCause();
             }
-            throw new RuntimeException("Error while unpacking the archive!", e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

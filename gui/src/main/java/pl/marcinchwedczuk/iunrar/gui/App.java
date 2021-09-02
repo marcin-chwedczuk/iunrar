@@ -56,6 +56,6 @@ public class App extends Application {
             curr = curr.getCause();
         }
 
-        UiService.errorDialog(msg.toString());
+        UiService.errorDialog("Unhandled exception", msg.toString());
     }
 }

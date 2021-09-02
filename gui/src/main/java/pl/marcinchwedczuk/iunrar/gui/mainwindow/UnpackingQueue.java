@@ -1,7 +1,7 @@
 package pl.marcinchwedczuk.iunrar.gui.mainwindow;
 
 import javafx.scene.control.ListView;
-import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueItem;
+import pl.marcinchwedczuk.iunrar.gui.unpackingqueue.UnpackingQueueItem;
 
 public class UnpackingQueue {
     private UnpackingQueue() { }

@@ -1,7 +1,6 @@
-package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
+package pl.marcinchwedczuk.iunrar.gui.unpackingqueue;
 
 import javafx.beans.binding.Bindings;
-import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;

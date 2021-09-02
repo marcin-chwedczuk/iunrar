@@ -1,4 +1,4 @@
-package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
+package pl.marcinchwedczuk.iunrar.gui.unpackingqueue;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -75,6 +75,8 @@ public class UnpackingQueueItem extends Task<Void> {
                 public boolean shouldPause() { return thisItem.isPaused(); }
             };
 
+            updateProgressPercent(0);
+
             RarUnpacker unpacker = new RarUnpacker(
                     archive,
                     new ThrottledWorkerStatus(workerStatus),
@@ -86,7 +88,7 @@ public class UnpackingQueueItem extends Task<Void> {
             Runtime.getRuntime().exec("open .", new String[]{ }, destinationDirectory);
 
             updateMessage("Done");
-            updateProgress(100.0, 100.0);
+            updateProgressPercent(100.0);
         }
         catch (StopCompressionException e) {
             updateMessage(e.getMessage());
@@ -96,12 +98,13 @@ public class UnpackingQueueItem extends Task<Void> {
             e.printStackTrace();
 
             Platform.runLater(() -> {
-                UiService.errorDialog(e.getClass().getName() + ": " + e.getMessage());
+                UiService.errorDialog(
+                        String.format("Cannot unpack archive: %s", archive.getName()),
+                        String.format("%s: %s", e.getClass().getName(), e.getMessage()));
             });
         }
         return null;
     }
-
 
     public String archiveName() {
         return archive.getName();

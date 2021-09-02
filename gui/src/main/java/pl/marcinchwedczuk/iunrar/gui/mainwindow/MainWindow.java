@@ -2,13 +2,9 @@ package pl.marcinchwedczuk.iunrar.gui.mainwindow;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -22,9 +18,9 @@ import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
 import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionProvider;
-import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueItem;
-import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueListViewCell;
-import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.NoSelectionModel;
+import pl.marcinchwedczuk.iunrar.gui.unpackingqueue.UnpackingQueueItem;
+import pl.marcinchwedczuk.iunrar.gui.unpackingqueue.UnpackingQueueListViewCell;
+import pl.marcinchwedczuk.iunrar.gui.unpackingqueue.NoSelectionModel;
 import pl.marcinchwedczuk.iunrar.gui.passworddialog.GuiPasswordProvider;
 import pl.marcinchwedczuk.iunrar.gui.settingsdialog.SettingsDialog;
 
