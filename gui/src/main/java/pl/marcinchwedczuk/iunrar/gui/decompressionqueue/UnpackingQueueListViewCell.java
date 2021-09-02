@@ -2,7 +2,6 @@ package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
 
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Worker;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -12,13 +11,13 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class DecompressionQueueListViewCell
-        extends ListCell<DecompressionQueueItem>
+public class UnpackingQueueListViewCell
+        extends ListCell<UnpackingQueueItem>
         implements Initializable
 {
-    public static DecompressionQueueListViewCell newCell(ListView<DecompressionQueueItem> parent) {
+    public static UnpackingQueueListViewCell newCell(ListView<UnpackingQueueItem> parent) {
         FXMLLoader loader = new FXMLLoader(
-                DecompressionQueueListViewCell.class.getResource("DecompressionQueueListViewCell.fxml"));
+                UnpackingQueueListViewCell.class.getResource("UnpackingQueueListViewCell.fxml"));
         try {
             loader.load();
             return loader.getController();
@@ -51,7 +50,7 @@ public class DecompressionQueueListViewCell
     }
 
     @Override
-    protected void updateItem(DecompressionQueueItem item, boolean empty) {
+    protected void updateItem(UnpackingQueueItem item, boolean empty) {
         super.updateItem(item, empty); // IMPORTANT
 
         if (empty) {
@@ -90,7 +89,7 @@ public class DecompressionQueueListViewCell
 
     @FXML
     private void guiStop() {
-        DecompressionQueueItem item = getItem();
+        UnpackingQueueItem item = getItem();
         if (item != null) {
             // Allow cancel logic to execute
             item.cancel(false);
@@ -99,7 +98,7 @@ public class DecompressionQueueListViewCell
 
     @FXML
     private void guiPause() {
-        DecompressionQueueItem item = getItem();
+        UnpackingQueueItem item = getItem();
         if (item != null) {
             item.setPaused(!item.isPaused());
         }

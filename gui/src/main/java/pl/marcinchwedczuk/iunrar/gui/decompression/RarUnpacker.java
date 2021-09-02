@@ -10,53 +10,49 @@ import static java.util.Objects.requireNonNull;
 import static pl.marcinchwedczuk.iunrar.gui.decompression.MessageLevel.IMPORTANT;
 
 public class RarUnpacker {
-    private final File rarArchive;
-    private final WorkerStatus progressCallback;
-    private final FileConflictResolutionProvider conflictResolutionProvider;
+    private final File archive;
+    private final WorkerStatus workerStatus;
+    private final FileConflictResolutionProvider fileConflictResolutionProvider;
     private final PasswordProvider passwordProvider;
 
-    public RarUnpacker(File rarArchive,
-                       WorkerStatus progressCallback,
-                       FileConflictResolutionProvider conflictResolutionProvider,
+    public RarUnpacker(File archive,
+                       WorkerStatus workerStatus,
+                       FileConflictResolutionProvider fileConflictResolutionProvider,
                        PasswordProvider passwordProvider) {
-        this.rarArchive = requireNonNull(rarArchive);
-        this.progressCallback = requireNonNull(progressCallback);
-        this.conflictResolutionProvider = requireNonNull(conflictResolutionProvider);
+        this.archive = requireNonNull(archive);
+        this.workerStatus = requireNonNull(workerStatus);
+        this.fileConflictResolutionProvider = requireNonNull(fileConflictResolutionProvider);
         this.passwordProvider = requireNonNull(passwordProvider);
     }
 
     public File unpack() throws InterruptedException {
-        return unpack(null);
-    }
-
-    private File unpack(String password) throws InterruptedException {
         try {
             // Remove rar extension
             File destinationDirectory = new File(
-                    rarArchive.getAbsolutePath().replaceAll("\\.rar$", ""));
+                    archive.getAbsolutePath().replaceAll("\\.rar$", ""));
 
-            progressCallback.updateMessage(IMPORTANT, "Creating output directory...");
+            workerStatus.updateMessage(IMPORTANT, "Creating output directory...");
             if (!destinationDirectory.exists() && !destinationDirectory.mkdirs()) {
                 throw new RuntimeException("Cannot create output directory: '" + destinationDirectory + "'.");
             }
 
             // Find out password and reuse for further operations
-            Archive arch = LocalFolderExtractor.createArchiveOrThrowException(rarArchive, passwordProvider);
-            RelayPasswordProvider relayPasswordProvider = new RelayPasswordProvider(arch.getPassword());
+            Archive arch = LocalFolderExtractor.createArchiveOrThrowException(archive, passwordProvider);
+            StaticPasswordProvider staticPasswordProvider = new StaticPasswordProvider(arch.getPassword());
 
-            progressCallback.updateMessage(IMPORTANT, "Computing total size...");
-            long totalSize = LocalFolderExtractor.getContentsDescription(rarArchive, relayPasswordProvider).stream()
+            workerStatus.updateMessage(IMPORTANT, "Computing total size...");
+            long totalSize = LocalFolderExtractor.getContentsDescription(archive, staticPasswordProvider).stream()
                     .mapToLong(cd -> cd.size)
                     .sum();
 
-            progressCallback.updateMessage(IMPORTANT, "Extracting...");
+            workerStatus.updateMessage(IMPORTANT, "Extracting...");
             LocalFolderExtractor.extract(
-                    rarArchive,
+                    archive,
                     destinationDirectory,
                     totalSize,
-                    progressCallback,
-                    conflictResolutionProvider,
-                    relayPasswordProvider);
+                    workerStatus,
+                    fileConflictResolutionProvider,
+                    staticPasswordProvider);
 
             return destinationDirectory;
         }

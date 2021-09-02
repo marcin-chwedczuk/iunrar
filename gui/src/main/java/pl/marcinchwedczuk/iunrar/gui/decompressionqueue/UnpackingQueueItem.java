@@ -10,16 +10,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.requireNonNull;
 
-public class DecompressionQueueItem extends Task<Void> {
+public class UnpackingQueueItem extends Task<Void> {
     private final File archive;
 
     private final FileConflictResolutionProvider fileConflictResolutionProvider;
     private final PasswordProvider passwordProvider;
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
-    public DecompressionQueueItem(File archive,
-                                  FileConflictResolutionProvider fileConflictResolutionProvider,
-                                  PasswordProvider passwordProvider) {
+    public UnpackingQueueItem(File archive,
+                              FileConflictResolutionProvider fileConflictResolutionProvider,
+                              PasswordProvider passwordProvider) {
         this.archive = requireNonNull(archive);
         this.fileConflictResolutionProvider = requireNonNull(fileConflictResolutionProvider);
         this.passwordProvider = requireNonNull(passwordProvider);
@@ -28,23 +28,19 @@ public class DecompressionQueueItem extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-            DecompressionQueueItem outer = this;
+            UnpackingQueueItem thisItem = this;
             WorkerStatus workerStatus = new WorkerStatus() {
                 @Override
-                public void updateMessage(MessageLevel messageLevel, String message) { outer.updateMessage(message); }
+                public void updateMessage(MessageLevel messageLevel, String message) { thisItem.updateMessage(message); }
 
                 @Override
-                public void updateProgress(double progress) { outer.updateProgress(progress, 100.0); }
+                public void updateProgressPercent(double progressPercent) { thisItem.updateProgressPercent(progressPercent); }
 
                 @Override
-                public boolean shouldStop() {
-                    return outer.isCancelled();
-                }
+                public boolean shouldStop() { return thisItem.isCancelled(); }
 
                 @Override
-                public boolean shouldPause() {
-                    return outer.isPaused();
-                }
+                public boolean shouldPause() { return thisItem.isPaused(); }
             };
 
             RarUnpacker unpacker = new RarUnpacker(
@@ -57,16 +53,14 @@ public class DecompressionQueueItem extends Task<Void> {
 
             Runtime.getRuntime().exec("open .", new String[]{ }, destinationDirectory);
 
-            if (!isCancelled()) {
-                updateMessage("Done");
-                updateProgress(100.0, 100.0);
-            }
+            updateMessage("Done");
+            updateProgress(100.0, 100.0);
         }
         catch (StopCompressionException e) {
-            updateMessage("Canceled");
+            updateMessage(e.getMessage());
         }
         catch (Exception e) {
-            updateMessage("ERROR");
+            updateMessage("Failed");
             e.printStackTrace();
 
             Platform.runLater(() -> {
@@ -76,34 +70,14 @@ public class DecompressionQueueItem extends Task<Void> {
         return null;
     }
 
-    protected Void callOld() throws Exception {
-        for (int i = 0; i <= 20; i++) {
-            spinWaitWhenPaused();
-
-            Thread.sleep(500);
-            if (isCancelled()) {
-                updateMessage("Stopped.");
-                return null;
-            }
-            updateProgress(i, 20);
-            updateMessage("Currently @" + i);
-        }
-
-        updateMessage("Done");
-        return null;
-    }
-
-    private void spinWaitWhenPaused() throws InterruptedException {
-        while (isPaused()) {
-            if (isCancelled()) break;
-            Thread.sleep(100);
-        }
-    }
-
     public String archiveName() {
         return archive.getName();
     }
 
     public boolean isPaused() { return paused.get(); }
     public void setPaused(boolean paused) { this.paused.set(paused); }
+
+    private void updateProgressPercent(double percent) {
+        this.updateProgress(percent, 100.0);
+    }
 }

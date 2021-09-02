@@ -6,11 +6,14 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-public class RelayPasswordProvider implements PasswordProvider {
+public class StaticPasswordProvider implements PasswordProvider {
+    /**
+     * `null` means no password was specified by the user.
+     */
     private final String password;
 
-    public RelayPasswordProvider(String password) {
-        this.password = password; // can be null
+    public StaticPasswordProvider(String password) {
+        this.password = password;
     }
 
     @Override

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import static java.util.Objects.requireNonNull;
 
 public class PauseCancelOutputStreamDecorator extends OutputStream {
-    private static final long CHECK_EVERY_BYTE = 64*1024;
+    private static final long CHECK_EVERY_NBYTES = 64*1024;
 
     private final WorkerStatus workerStatus;
     private final OutputStream inner;
@@ -52,7 +52,7 @@ public class PauseCancelOutputStreamDecorator extends OutputStream {
     }
 
     private void checkForStopAndPause() {
-        if (bytesWritten < CHECK_EVERY_BYTE) {
+        if (bytesWritten < CHECK_EVERY_NBYTES) {
             return;
         }
         bytesWritten = 0;
@@ -70,7 +70,7 @@ public class PauseCancelOutputStreamDecorator extends OutputStream {
         }
 
         if (workerStatus.shouldStop()) {
-            throw new StopCompressionException();
+            throw new StopCompressionException("Stopped by the user");
         }
     }
 }

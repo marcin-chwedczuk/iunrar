@@ -9,14 +9,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import pl.marcinchwedczuk.iunrar.gui.AppPreferences;
 import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
 import pl.marcinchwedczuk.iunrar.gui.conflictdialog.ConflictDialog;
 import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionProvider;
-import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueItem;
-import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.DecompressionQueueListViewCell;
+import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueItem;
+import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueListViewCell;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.NoSelectionModel;
 import pl.marcinchwedczuk.iunrar.gui.passworddialog.GuiPasswordProvider;
 import pl.marcinchwedczuk.iunrar.gui.settingsdialog.SettingsDialog;
@@ -55,34 +54,28 @@ public class MainWindow implements Initializable {
     private MenuBar mainMenu;
 
     @FXML
-    private ListView<DecompressionQueueItem> decompressionQueue;
+    private ListView<UnpackingQueueItem> unpackingQueue;
 
-    private final Executor decompressionExecutor;
+    private final Executor unpackingExecutor;
     private final FileChooser openArchiveFileChooser = FileChoosers.newOpenArchiveFileChooser();
 
-    public MainWindow(Executor decompressionExecutor) {
-        this.decompressionExecutor = Objects.requireNonNull(decompressionExecutor);
+    public MainWindow(Executor unpackingExecutor) {
+        this.unpackingExecutor = Objects.requireNonNull(unpackingExecutor);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        decompressionQueue.setSelectionModel(new NoSelectionModel<>());
-        decompressionQueue.setCellFactory(DecompressionQueueListViewCell::newCell);
-
-        for (DecompressionQueueItem item : decompressionQueue.getItems()) {
-            decompressionExecutor.execute(item);
-        }
-
-        System.out.println(new AppPreferences().getOpenFolderAfterUnpacking());
-        new AppPreferences()
-                .setOpenFolderAfterDecompression(true)
-                .save();
+        unpackingQueue.setSelectionModel(new NoSelectionModel<>());
+        unpackingQueue.setCellFactory(UnpackingQueueListViewCell::newCell);
 
         // Start receiving events
         boolean ok = OpenFileEvents.INSTANCE.subscribe(file -> {
+            startUnpacking(file);
         });
         if (!ok) {
-            UiService.errorDialog("Error: Cannot subscribe to macOS open file events.");
+            UiService.errorDialog(
+                    "Cannot subscribe to macOS open file events.\n" +
+                    "This app will be closed.");
             Platform.exit();
         }
     }
@@ -91,14 +84,19 @@ public class MainWindow implements Initializable {
     private void guiOpenArchive() {
         File archive = openArchiveFileChooser.showOpenDialog(thisWindow());
         if (archive != null) {
-            DecompressionQueueItem item = new DecompressionQueueItem(
-                    archive,
-                    new GuiFileConflictResolutionProvider(),
-                    new GuiPasswordProvider(thisWindow()));
-
-            decompressionQueue.getItems().add(item);
-            decompressionExecutor.execute(item);
+            startUnpacking(archive);
         }
+    }
+
+    private void startUnpacking(File archive) {
+        UnpackingQueueItem item = new UnpackingQueueItem(
+                archive,
+                new GuiFileConflictResolutionProvider(),
+                new GuiPasswordProvider(thisWindow()));
+
+        // Add as a first item
+        unpackingQueue.getItems().add(0, item);
+        unpackingExecutor.execute(item);
     }
 
     @FXML

@@ -7,39 +7,40 @@ import java.util.concurrent.atomic.AtomicLong;
 import static java.util.Objects.requireNonNull;
 
 public class ProgressReportingOutputStreamDecorator extends OutputStream {
-    private final WorkerStatus workerStatus;
-    private final long totalSize;
     private final OutputStream inner;
-    private final AtomicLong alreadyUnpacked;
+
+    private final WorkerStatus workerStatus;
+    private final long archiveTotalUnpackedSize;
+    private final AtomicLong currentlyUnpackedSize;
 
     public ProgressReportingOutputStreamDecorator(WorkerStatus workerStatus,
-                                                  long totalSize,
-                                                  AtomicLong alreadyUnpacked,
+                                                  long archiveTotalUnpackedSize,
+                                                  AtomicLong currentlyUnpackedSize,
                                                   OutputStream inner) {
         this.workerStatus = requireNonNull(workerStatus);
-        this.totalSize = totalSize;
-        this.alreadyUnpacked = requireNonNull(alreadyUnpacked);
+        this.archiveTotalUnpackedSize = archiveTotalUnpackedSize;
+        this.currentlyUnpackedSize = requireNonNull(currentlyUnpackedSize);
         this.inner = requireNonNull(inner);
     }
 
     @Override
     public void write(int b) throws IOException {
         inner.write(b);
-        alreadyUnpacked.setPlain(alreadyUnpacked.getPlain() + 1);
+        currentlyUnpackedSize.setPlain(currentlyUnpackedSize.getPlain() + 1);
         updateProgress();
     }
 
     @Override
     public void write(byte[] b) throws IOException {
         inner.write(b);
-        alreadyUnpacked.setPlain(alreadyUnpacked.getPlain() + b.length);
+        currentlyUnpackedSize.setPlain(currentlyUnpackedSize.getPlain() + b.length);
         updateProgress();
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         inner.write(b, off, len);
-        alreadyUnpacked.setPlain(alreadyUnpacked.getPlain() + len);
+        currentlyUnpackedSize.setPlain(currentlyUnpackedSize.getPlain() + len);
         updateProgress();
     }
 
@@ -56,6 +57,6 @@ public class ProgressReportingOutputStreamDecorator extends OutputStream {
     }
 
     private void updateProgress() {
-        workerStatus.updateProgress(100.0 * alreadyUnpacked.getPlain() / totalSize);
+        workerStatus.updateProgressPercent(100.0 * currentlyUnpackedSize.getPlain() / archiveTotalUnpackedSize);
     }
 }

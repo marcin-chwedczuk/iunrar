@@ -65,6 +65,6 @@
          </padding></HBox>
     </bottom>
    <center>
-      <ListView fx:id="decompressionQueue" BorderPane.alignment="CENTER" />
+      <ListView fx:id="unpackingQueue" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>
