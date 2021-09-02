@@ -6,6 +6,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
@@ -26,6 +30,9 @@ public class UnpackingQueueListViewCell
         }
     }
 
+    private Image pauseImage;
+    private Image resumeImage;
+
     @FXML
     private GridPane root;
 
@@ -44,8 +51,14 @@ public class UnpackingQueueListViewCell
     @FXML
     private Button pauseButton;
 
+    @FXML
+    private ImageView pauseButtonImage;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        pauseImage = new Image(getClass().getResource("icons/pause.png").toString());
+        resumeImage = new Image(getClass().getResource("icons/resume.png").toString());
+
         updateSelected(false);
     }
 
@@ -60,7 +73,8 @@ public class UnpackingQueueListViewCell
             progress.progressProperty().unbind();
             stopButton.disableProperty().unbind();
             pauseButton.disableProperty().unbind();
-            pauseButton.setText("Pause");
+            pauseButton.textProperty().unbind();
+            pauseButtonImage.imageProperty().unbind();
         }
         else {
             setGraphic(root);
@@ -68,30 +82,33 @@ public class UnpackingQueueListViewCell
             message.textProperty().bind(item.messageProperty());
             progress.progressProperty().bind(item.progressProperty());
             stopButton.disableProperty().bind(Bindings.createBooleanBinding(
-                    () -> {
-                        var state = item.stateProperty().getValue();
-                        return state == Worker.State.SUCCEEDED ||
-                                state == Worker.State.FAILED ||
-                                state == Worker.State.CANCELLED;
-                    },
+                    () -> isNoLongerActive(item),
                     item.stateProperty()));
 
             pauseButton.disableProperty().bind(Bindings.createBooleanBinding(
-                    () -> {
-                        var state = item.stateProperty().getValue();
-                        return state == Worker.State.SUCCEEDED ||
-                                state == Worker.State.FAILED ||
-                                state == Worker.State.CANCELLED;
-                    }, item.stateProperty()));
-            pauseButton.setText(item.isPaused() ? "Resume" : "Pause");
+                    () -> isNoLongerActive(item),
+                    item.stateProperty()));
+            pauseButton.textProperty().bind(Bindings.createStringBinding(
+                    () -> item.pausedProperty().get() ? "Resume" : "Pause",
+                    item.pausedProperty()));
+            pauseButtonImage.imageProperty().bind(Bindings.createObjectBinding(
+                    () -> item.pausedProperty().get() ? resumeImage : pauseImage,
+                    item.pausedProperty()));
         }
+    }
+
+    private boolean isNoLongerActive(UnpackingQueueItem item) {
+        var state = item.stateProperty().getValue();
+        return state == Worker.State.SUCCEEDED ||
+                state == Worker.State.FAILED ||
+                state == Worker.State.CANCELLED;
     }
 
     @FXML
     private void guiStop() {
         UnpackingQueueItem item = getItem();
         if (item != null) {
-            // Allow cancel logic to execute
+            // Interrupt false to allow cancel logic to execute
             item.cancel(false);
         }
     }
@@ -101,13 +118,6 @@ public class UnpackingQueueListViewCell
         UnpackingQueueItem item = getItem();
         if (item != null) {
             item.setPaused(!item.isPaused());
-        }
-
-        if (item.isPaused()) {
-            pauseButton.setText("Resume");
-        }
-        else {
-            pauseButton.setText("Pausing");
         }
     }
 }

@@ -48,11 +48,12 @@ public class PauseCancelOutputStreamDecorator extends OutputStream {
         inner.close();
 
         // Always check after file was saved
-        checkForStopAndPause();
+        checkForStopAndPause(true);
     }
 
-    private void checkForStopAndPause() {
-        if (bytesWritten < CHECK_EVERY_NBYTES) {
+    private void checkForStopAndPause() { checkForStopAndPause(false); }
+    private void checkForStopAndPause(boolean forceCheck) {
+        if (!forceCheck && (bytesWritten < CHECK_EVERY_NBYTES)) {
             return;
         }
         bytesWritten = 0;

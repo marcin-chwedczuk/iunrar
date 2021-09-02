@@ -1,6 +1,9 @@
 package pl.marcinchwedczuk.iunrar.gui;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
+import java.util.Optional;
 
 public class UiService {
     public static void infoDialog(String message) {
@@ -19,5 +22,15 @@ public class UiService {
         // ID for tests
         alert.getDialogPane().setId("error-dialog");
         alert.showAndWait();
+    }
+
+    public static boolean confirmationDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog");
+        // alert.setHeaderText("Question");
+        alert.setContentText(message);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return (result.get() == ButtonType.OK);
     }
 }

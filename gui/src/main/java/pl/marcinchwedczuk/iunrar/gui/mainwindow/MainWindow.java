@@ -12,7 +12,6 @@ import javafx.stage.Stage;
 import pl.marcinchwedczuk.iunrar.gui.OpenFileEvents;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.aboutdialog.AboutDialog;
-import pl.marcinchwedczuk.iunrar.gui.conflictdialog.ConflictDialog;
 import pl.marcinchwedczuk.iunrar.gui.conflictdialog.GuiFileConflictResolutionProvider;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueItem;
 import pl.marcinchwedczuk.iunrar.gui.decompressionqueue.UnpackingQueueListViewCell;
@@ -75,7 +74,7 @@ public class MainWindow implements Initializable {
         if (!ok) {
             UiService.errorDialog(
                     "Cannot subscribe to macOS open file events.\n" +
-                    "This app will be closed.");
+                    "This application will exit.");
             Platform.exit();
         }
     }
@@ -101,17 +100,24 @@ public class MainWindow implements Initializable {
 
     @FXML
     private void guiCancelAll() {
+        if (!UnpackingQueue.hasAnyCancellableItems(unpackingQueue)) {
+            return;
+        }
 
+        boolean yes = UiService.confirmationDialog("Do you want to cancel all operations?");
+        if (yes) {
+            UnpackingQueue.cancelAll(unpackingQueue);
+        }
     }
 
     @FXML
     private void guiPauseAll() {
-
+        UnpackingQueue.pauseAll(unpackingQueue);
     }
 
     @FXML
-    private void testShowConflict() {
-        ConflictDialog.showAndWaitForAnswer("archive.rar", "foo", 10, 20);
+    private void guiResumeAll() {
+        UnpackingQueue.resumeAll(unpackingQueue);
     }
 
     @FXML

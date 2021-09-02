@@ -37,7 +37,7 @@
                </graphic></Button>
             <Button fx:id="pauseButton" mnemonicParsing="false" onAction="#guiPause" text="Pause">
                <graphic>
-                  <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="pauseButtonImage" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@icons/pause.png" />
                      </image>

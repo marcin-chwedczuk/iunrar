@@ -1,6 +1,8 @@
 package pl.marcinchwedczuk.iunrar.gui.decompressionqueue;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import pl.marcinchwedczuk.iunrar.gui.UiService;
 import pl.marcinchwedczuk.iunrar.gui.decompression.*;
@@ -15,7 +17,11 @@ public class UnpackingQueueItem extends Task<Void> {
 
     private final FileConflictResolutionProvider fileConflictResolutionProvider;
     private final PasswordProvider passwordProvider;
+
     private final AtomicBoolean paused = new AtomicBoolean(false);
+    private SimpleBooleanProperty pausedProp = new SimpleBooleanProperty(paused.get());
+
+    // TODO: Add JavaFX prop for paused, use diff icons
 
     public UnpackingQueueItem(File archive,
                               FileConflictResolutionProvider fileConflictResolutionProvider,
@@ -75,7 +81,11 @@ public class UnpackingQueueItem extends Task<Void> {
     }
 
     public boolean isPaused() { return paused.get(); }
-    public void setPaused(boolean paused) { this.paused.set(paused); }
+    public void setPaused(boolean paused) {
+        this.paused.set(paused);
+        this.pausedProp.set(paused);
+    }
+    public BooleanProperty pausedProperty() { return pausedProp; }
 
     private void updateProgressPercent(double percent) {
         this.updateProgress(percent, 100.0);

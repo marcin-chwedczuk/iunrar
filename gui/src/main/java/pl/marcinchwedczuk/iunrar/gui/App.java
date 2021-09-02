@@ -22,7 +22,7 @@ public class App extends Application {
         return hostServices;
     }
 
-    private final ExecutorService decompressionExecutor =
+    private final ExecutorService unpackingExecutor =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     @Override
@@ -33,12 +33,12 @@ public class App extends Application {
         });
 
         App.hostServices = this.getHostServices();
-        MainWindow.show(stage, decompressionExecutor);
+        MainWindow.show(stage, unpackingExecutor);
     }
 
     @Override
     public void stop() throws Exception {
-        decompressionExecutor.shutdown();
+        unpackingExecutor.shutdown();
         super.stop();
     }
 
