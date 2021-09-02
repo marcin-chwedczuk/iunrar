@@ -1,9 +1,24 @@
 # iunrar
 
-WORK IN PROGRESS - DO NOT USE
+iunrar (read "I unrar") is a simple macOS application that unpacks RAR files.
 
-iunrar (read "I unrar") is a simple application that unpacks RAR files.
-It supports RAR version 4 and older.
+![Main Window](./docs/main.png)
+
+![Conflict Dialog](./docs/conflict.png)
+
+The application is a tin wrapper around [junrar library](https://github.com/junrar/junrar).
+
+WARNING: It does not support RAR5 format yet.
+
+## Installing
+
+Remember to clear application quarantine bits after installing the app
+from GitHub releases.
+```
+$ cd /Applications
+$ sudo xattr -cr iunrar.app
+$ open iunrar.app
+```
 
 ## How to build application from sources
 
@@ -21,6 +36,3 @@ To create a macOS application package:
 ```
 ./mvnw clean install -P mkinstaller
 ```
-
-(OK it should work on JDK 11 too, but I am running all CI builds on JDK 16.)
-
